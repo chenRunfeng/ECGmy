@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mianblu"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff" >
+
+    <TextView
+        android:id="@+id/title_paired_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/scan"
+        android:background="#ddd"
+        android:paddingLeft="5dp"
+        android:textColor="@color/black"
+        android:text="已配对设备"
+         />
+	<ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_paired_devices"
+        android:layout_above="@+id/title_new_devices"
+        android:layout_weight="1"/>
+	 
+	 
+    <TextView
+        android:id="@+id/title_new_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="#ddd"
+        android:paddingLeft="5dp"
+        android:textColor="@color/black"
+        android:text="新发现设备"
+         />
+    <com.example.mrchenrunfeng.myecg.view.switchbutton.SwitchButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:id="@+id/openBluetooth"
+        android:layout_above="@+id/title_paired_devices"
+        android:layout_alignParentLeft="true"/>
+
+    <ListView
+        android:id="@+id/listView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        
+        android:layout_below="@id/title_new_devices"
+        
+        android:layout_weight="2" >
+    </ListView>
+
+    <Button
+        android:id="@+id/scan"
+        android:layout_width="60dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:text="  扫 描  "
+        android:textSize="10dp" />
+   
+</RelativeLayout>

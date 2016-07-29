@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal"
+    tools:context=".activity.MainActivity">
+    <!--android:weightSum="1">-->
+    <FrameLayout
+        android:layout_width="75dp"
+        android:layout_height="match_parent">
+        <!--<ImageView android:layout_width="48dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:id="@+id/imageView"-->
+        <!--android:background="#9b9292">-->
+        <!--</ImageView>-->
+        <LinearLayout
+            android:id="@+id/line1s"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#0d0d0d"
+            android:orientation="vertical"
+            >
+            <ImageButton
+                android:id="@+id/imbtnbluetooth"
+                android:layout_width="@dimen/btnwidth"
+                android:layout_height="0dp"
+                android:layout_weight="2"/>
+            <ImageButton
+                android:id="@+id/imbtnleading"
+                android:layout_width="@dimen/btnwidth"
+                android:layout_height="0dp"
+                android:background="@drawable/leading"
+                android:layout_marginTop="16dp"
+                android:layout_weight="2"/>
+            <ImageButton
+                android:id="@+id/imbtnplay"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/play"
+                android:layout_weight="3"
+                />
+            <ImageButton
+                android:id="@+id/imbtnlist"
+                android:layout_width="@dimen/btnwidth"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/list"
+                android:layout_weight="2"/>
+            <ImageButton
+                android:id="@+id/imbtnexit"
+                android:layout_width="@dimen/btnwidth"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/exit"
+                android:layout_weight="2"/>
+        </LinearLayout>
+    </FrameLayout>
+    <com.example.mrchenrunfeng.myecg.view.ECGSurfaceView
+        android:id="@+id/ECGV"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent" />
+    <!--<SurfaceView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/colorAccent"/>-->
+    <!--<com.example.mrchenrunfeng.myecg.view.sidebar-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="match_parent" />-->
+    <!--<LinearLayout-->
+    <!--android:orientation="horizontal"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="bottom"></LinearLayout>-->
+
+</LinearLayout>
