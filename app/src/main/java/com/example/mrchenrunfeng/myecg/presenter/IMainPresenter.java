@@ -6,6 +6,7 @@ package com.example.mrchenrunfeng.myecg.presenter;
 public interface IMainPresenter {
     void Bluetoothsocketconnet();
     void Connected();
+    //MainPresenterImpl getUniqueInstance();
 //    void Test();
 //    void ShowECG();
 }

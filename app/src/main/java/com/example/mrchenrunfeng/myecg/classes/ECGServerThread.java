@@ -40,12 +40,14 @@ public class ECGServerThread extends Thread implements ECGServer {
             handleStream();
             dataStream();
         }
+        mHandler.obtainMessage(SetState(mCommand),mArg);
     }
     public synchronized void dataStream() {
         int mdata;
         while (true) {
             try {
-                if ((mdata = mmInputStream.read()) == Command.intFirstFrame) {
+                mdata = mmInputStream.read();
+                if (mdata == Command.intFirstFrame) {
                     Log.v("Firstframe:",""+mdata);
                     mdata = mmInputStream.read();
                     Log.v("INTDATA:",""+mdata);
@@ -78,18 +80,21 @@ public class ECGServerThread extends Thread implements ECGServer {
 //                    int bytes=mmInputStream.read(buffer);
 //                    Log.v("len:",""+bytes);
                     }
-                    else {return;}
                 }
+                else {break; }
             } catch (IOException e) {
                 // TODO �Զ���ɵ� catch ��
                 Log.v(e.getMessage(), "   read data fail  ");
                 e.printStackTrace();
+                break;
             }
             // }
         }
     }
     public boolean getStream() {
-        mSocket = mBluetoothLink.getSocket();
+       // while (mBluetoothLink.getSocket()!=null) {
+            mSocket = mBluetoothLink.getSocket();
+        //}
         try {
             mmInputStream = mSocket.getInputStream();
             mmOutputStream = mSocket.getOutputStream();
@@ -117,7 +122,7 @@ public class ECGServerThread extends Thread implements ECGServer {
             return false;
         }
     }
-    public synchronized void handleStream() {
+    public  void handleStream() {
         int mdata;
         //mmInputStream
         //while (true) {
@@ -128,6 +133,7 @@ public class ECGServerThread extends Thread implements ECGServer {
                     mCommand = mmInputStream.read();
                     mArg = mmInputStream.read();
                     Log.v("Command and Arg:", "" + mCommand + "" + mArg);
+                    setDone();
                 }
             }
             return;

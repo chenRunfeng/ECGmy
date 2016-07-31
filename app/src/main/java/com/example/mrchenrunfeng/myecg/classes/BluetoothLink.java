@@ -104,6 +104,7 @@ public class BluetoothLink implements IBluetoothLink {
 			try {
 				tempSocket.connect();
 				hasConnected=true;
+				Log.v("ConnectThread", "tempSocket connet");
 			} catch (IOException e) {
 				// TODO �Զ���ɵ� catch ��
 				e.printStackTrace();
@@ -138,7 +139,9 @@ public class BluetoothLink implements IBluetoothLink {
 		
 	//�����׽���
 	public BluetoothSocket getSocket(){
-		return socket;
+		//while (socket==null) {
+			return socket;
+		//}
 	}
 	
 }

@@ -29,7 +29,7 @@ import com.example.mrchenrunfeng.myecg.view.IMainView;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends Activity implements IMainView,View.OnClickListener,LoaderManager.LoaderCallbacks<IMainPresenter>  {
+public class MainActivity extends Activity implements IMainView,View.OnClickListener {
     private  IMainPresenter mainPresenter;
     private Command com=new Command();
     //启动blueactivity.
@@ -121,10 +121,10 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
 
         if(requestCode==REQUEST_CONNECT_DEVICE && resultCode==Activity.RESULT_OK){
             address=data.getExtras().getString(BluetoothActivity.EXTRA_DEVICE_ADDRESS);
-             mainPresenter=new MainPresenterImpl(this,address);
+             mainPresenter=MainPresenterImpl.getUniqueInstance(this,address);
 //            mBluetoothLink = new BluetoothLink(mHandler,address);
 //            mBluetoothLink.connect();
-            mainPresenter.Connected();
+            mainPresenter.Bluetoothsocketconnet();
         }
     };
     @Override
@@ -140,19 +140,5 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
     public void DisConnected(){
         Toast.makeText(getApplicationContext(),"建立连接失败！！",Toast.LENGTH_SHORT);
-    }
-    @Override
-    public Loader<IMainPresenter> onCreateLoader(int id, Bundle arg){
-        return new PresenterLoader<>(this, new SomeFactoryImpl());
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Presenter> loader, Presenter presenter) {
-        this.presenter = presenter;
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Presenter> loader) {
-        presenter = null;
     }
 }

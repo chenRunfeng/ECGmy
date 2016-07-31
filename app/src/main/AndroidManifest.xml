@@ -20,7 +20,7 @@
             <!--<category android:name="android.intent.category.LAUNCHER"/>-->
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
         </intent-filter>
-        <activity android:name=".activity.MainActivity" android:screenOrientation="landscape">
+        <activity android:name=".activity.MainActivity" android:screenOrientation="landscape" android:launchMode="standard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

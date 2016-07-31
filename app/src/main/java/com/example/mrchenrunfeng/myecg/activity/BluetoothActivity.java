@@ -191,8 +191,8 @@ public class BluetoothActivity extends Activity implements IBlueToothView{
 	public void Scan(View v){
 		// TODO �Զ���ɵķ������
 		if(!mBluetoothAdapter.isEnabled()) {
-			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivity(enableIntent);//����δ���������һ����Ϣ��ʹ���߿���
+			Toast.makeText( getApplicationContext(),"请先打开蓝牙！",
+					Toast.LENGTH_SHORT).show();
 		}
 		else if (mBluetoothAdapter.isDiscovering()) {
 			mBluetoothAdapter.cancelDiscovery();

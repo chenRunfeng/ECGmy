@@ -12,8 +12,8 @@ import java.util.concurrent.Executors;
 public class AgreementImpl implements Agreement {
     private Handler handler;
     public BluetoothLink bluetoothLink;
-    private static ExecutorService singleThreadExecutor;
-    private static ExecutorService cachedThreadPool;
+    private  ExecutorService singleThreadExecutor;
+    private  ExecutorService cachedThreadPool;
     public AgreementImpl(Handler h,BluetoothLink b){
         handler=h;
         bluetoothLink=b;
@@ -23,9 +23,11 @@ public class AgreementImpl implements Agreement {
     @Override
     public void AConnect(){
        // new Thread(new ConnectedThread(bluetoothLink)).start();
-      cachedThreadPool.execute(new ConnectedThread(bluetoothLink));
+      //cachedThreadPool.execute(new ConnectedThread(bluetoothLink));
        ECGServerThread ecgServerThread=new ECGServerThread(handler,bluetoothLink);
+        ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartConnectOrder,0x00,0x00);
         //ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartConnectOrder,0x00,0x00);
-      singleThreadExecutor.execute(ecgServerThread);
+      //singleThreadExecutor.submit(ecgServerThread);
+        ecgServerThread.start();
     }
 }
