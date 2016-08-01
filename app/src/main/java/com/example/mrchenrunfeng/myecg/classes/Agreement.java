@@ -5,7 +5,7 @@ package com.example.mrchenrunfeng.myecg.classes;
  */
 public interface Agreement {
     void AConnect();
-//    boolean ATest();
+    void ATest();
 //    boolean AStartSample();
 //    boolean AStopSample();
 //    boolean ADisconnet();

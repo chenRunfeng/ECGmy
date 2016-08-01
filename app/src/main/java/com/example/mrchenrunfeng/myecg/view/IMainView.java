@@ -7,7 +7,8 @@ public interface IMainView {
   void DisConnected();
   void OpenBluetoothView();
     void Connect();
-//    void TestCommunication();
+  void Connecting();
+  void TestCommunication();
 //    void Play();
 //    void Close();
 //    void Save();

@@ -7,6 +7,6 @@ public interface IMainPresenter {
     void Bluetoothsocketconnet();
     void Connected();
     //MainPresenterImpl getUniqueInstance();
-//    void Test();
+    void Test();
 //    void ShowECG();
 }

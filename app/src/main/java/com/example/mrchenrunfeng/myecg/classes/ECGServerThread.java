@@ -16,13 +16,14 @@ import java.util.concurrent.Executors;
  * Created by Mr.Chen RunFENG on 2016/7/19.
  */
 public class ECGServerThread extends Thread implements ECGServer {
-    private volatile boolean done = false;
+    //private volatile boolean done = false;
     protected static BluetoothSocket mSocket;
     protected BluetoothLink mBluetoothLink;
     protected static OutputStream mmOutputStream;
     protected static InputStream mmInputStream;
     protected int mCommand;
     protected int mArg;//记录命令帧的返回参数。
+    //int mData;
     protected Handler mHandler;
 
     public ECGServerThread(Handler handler, BluetoothLink bluetoothLink) {
@@ -36,16 +37,20 @@ public class ECGServerThread extends Thread implements ECGServer {
     }
     @Override
     public void run(){
-        while (!done) {
+//        while (!done) {
             handleStream();
             dataStream();
-        }
-        mHandler.obtainMessage(SetState(mCommand),mArg);
+       // }
+        mHandler.obtainMessage(SetState(mCommand),mArg).sendToTarget();
     }
     public synchronized void dataStream() {
         int mdata;
+        int isbreak;
         while (true) {
             try {
+                isbreak=mmInputStream.available();
+                if (isbreak==0)
+                    break;
                 mdata = mmInputStream.read();
                 if (mdata == Command.intFirstFrame) {
                     Log.v("Firstframe:",""+mdata);
@@ -122,7 +127,7 @@ public class ECGServerThread extends Thread implements ECGServer {
             return false;
         }
     }
-    public  void handleStream() {
+    public synchronized void handleStream() {
         int mdata;
         //mmInputStream
         //while (true) {
@@ -133,7 +138,9 @@ public class ECGServerThread extends Thread implements ECGServer {
                     mCommand = mmInputStream.read();
                     mArg = mmInputStream.read();
                     Log.v("Command and Arg:", "" + mCommand + "" + mArg);
-                    setDone();
+                    //mData=mmInputStream.available();
+                    //Log.v("mData:",""+mData);
+                    //setDone();
                 }
             }
             return;
@@ -167,7 +174,7 @@ public class ECGServerThread extends Thread implements ECGServer {
         }
         return result;
     }
-     public void setDone(){
-     done = true;
-     }
+//     public void setDone(){
+//     done = true;
+//     }
 }

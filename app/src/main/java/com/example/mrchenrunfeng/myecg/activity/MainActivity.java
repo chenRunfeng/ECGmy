@@ -2,6 +2,7 @@ package com.example.mrchenrunfeng.myecg.activity;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,16 +32,13 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity implements IMainView,View.OnClickListener {
     private  IMainPresenter mainPresenter;
-    private Command com=new Command();
+    private ProgressDialog pd;
     //启动blueactivity.
     private Intent lanyaIntent;
     private static boolean hasConnected = false;
     private int mstate;
     //启动扫描页面蓝牙请求连接代号
     private static final int REQUEST_CONNECT_DEVICE = 1;
-    private Runnable runthread;
-    //private TestThread testThread;
-    private ExecutorService cachedThreadpool= Executors.newCachedThreadPool();
     //蓝牙地址
     private String address = null;
     //private static ProcessData mProcessData;
@@ -89,6 +87,8 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         blueadapter= BluetoothAdapter.getDefaultAdapter();
+        pd=new ProgressDialog(this);
+        pd.setMessage("正在连接设备.......");
         if (blueadapter == null) {
             Toast.makeText(this, "蓝牙不可用！！",
                     Toast.LENGTH_SHORT).show();
@@ -122,8 +122,6 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         if(requestCode==REQUEST_CONNECT_DEVICE && resultCode==Activity.RESULT_OK){
             address=data.getExtras().getString(BluetoothActivity.EXTRA_DEVICE_ADDRESS);
              mainPresenter=MainPresenterImpl.getUniqueInstance(this,address);
-//            mBluetoothLink = new BluetoothLink(mHandler,address);
-//            mBluetoothLink.connect();
             mainPresenter.Bluetoothsocketconnet();
         }
     };
@@ -136,9 +134,19 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
    public void Connect(){
             imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth);
+            pd.cancel();
     }
     @Override
     public void DisConnected(){
-        Toast.makeText(getApplicationContext(),"建立连接失败！！",Toast.LENGTH_SHORT);
+       pd.cancel();
+        Toast.makeText(this,"建立连接失败！！",Toast.LENGTH_SHORT);
+    }
+    @Override
+    public void Connecting(){
+        pd.show();
+    }
+    @Override
+    public void TestCommunication(){
+        Toast.makeText(this,"通信正常！！",Toast.LENGTH_SHORT);
     }
 }

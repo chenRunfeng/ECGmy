@@ -3,14 +3,11 @@ package com.example.mrchenrunfeng.myecg.presenter;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.example.mrchenrunfeng.myecg.classes.Agreement;
 import com.example.mrchenrunfeng.myecg.classes.AgreementImpl;
 import com.example.mrchenrunfeng.myecg.classes.BluetoothLink;
 import com.example.mrchenrunfeng.myecg.classes.Command;
-import com.example.mrchenrunfeng.myecg.classes.ConnectedThread;
 import com.example.mrchenrunfeng.myecg.classes.IBluetoothLink;
 import com.example.mrchenrunfeng.myecg.view.IMainView;
 
@@ -48,6 +45,7 @@ public class MainPresenterImpl implements IMainPresenter {
                         @Override
                         public void run() {
                             mainView.Connect();
+                            Test();
                         }
                     });
                     break;
@@ -61,6 +59,14 @@ public class MainPresenterImpl implements IMainPresenter {
                     break;
                 case Command.SOCKET_NOTCOMUNICATIONCONNECTED:
                    break;
+                case Command.SOCKET_ISNOMALC:
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                          mainView.TestCommunication();
+                        }
+                    });
+                    break;
                 default:
                     break;
             }
@@ -80,21 +86,14 @@ public class MainPresenterImpl implements IMainPresenter {
     }
     @Override
     public void Connected(){
-
-//            for (int i = 0; i < 3; i++) {
                 agreement.AConnect();
-//                if (mstate == Command.intStartConnectOrder) {
-//                    return;
-//                } else {
-//                    iBluetoothLink.connect();
-//                    continue;
-//                }
-//            }
-//     mainView.DisConnected();
-//     iBluetoothLink.disconnect();
     }
     @Override
    public void Bluetoothsocketconnet(){
+        mainView.Connecting();
         iBluetoothLink.connect();
+    }
+    public void Test(){
+        agreement.ATest();
     }
 }
