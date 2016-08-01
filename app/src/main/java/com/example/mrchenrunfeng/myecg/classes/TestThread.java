@@ -10,6 +10,7 @@ import java.io.IOException;
  */
 public class TestThread extends Thread  implements Runnable {
    // Handler handler;
+   private volatile boolean done = false;
     BluetoothLink bluetoothLink;
     ECGServer ecgServer=null;
     Handler handler;
@@ -20,14 +21,19 @@ public class TestThread extends Thread  implements Runnable {
     }
     @Override
     public void run(){
-        try {
-            Thread.sleep(1000);
-            ecgServer=new ECGServerThread(bluetoothLink);
-            ecgServer.sendCommand(Command.intFirstFrame,Command.intTest,0x00,0x00);
-            handler.obtainMessage(Command.intTest).sendToTarget();
-            Log.v("Test",""+Command.intStartConnectOrder);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (!done) {
+            try {
+                Thread.sleep(1000);
+                //Log.v("Test", "" + Command.intTest);
+                ecgServer = new ECGServerThread(bluetoothLink);
+                ecgServer.sendCommand(Command.intFirstFrame, Command.intTest, 0x00, 0x00);
+                handler.obtainMessage(Command.intTest).sendToTarget();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+    }
+    public void setDone(){
+        done = true;
     }
 }

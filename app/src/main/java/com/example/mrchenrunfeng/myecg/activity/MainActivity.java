@@ -2,6 +2,8 @@ package com.example.mrchenrunfeng.myecg.activity;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -31,6 +33,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity implements IMainView,View.OnClickListener {
+    NotificationManager nm;
+    Notification notification;
+    final int ID_LED=19871103;
     private  IMainPresenter mainPresenter;
     private ProgressDialog pd;
     //启动blueactivity.
@@ -66,10 +71,10 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
             case R.id.imbtnbluetooth:
                 if (!hasConnected) {
                     OpenBluetoothView();
-                } else {
-
                 }
                 break;
+            case R.id.imbtnexit:
+                quit();
             default:
                 break;
         }
@@ -89,6 +94,12 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         blueadapter= BluetoothAdapter.getDefaultAdapter();
         pd=new ProgressDialog(this);
         pd.setMessage("正在连接设备.......");
+        nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        notification = new Notification();
+        notification.ledARGB = 0xFFFFFF;  //这里是颜色，我们可以尝试改变，理论上0xFF0000是红色，0x00FF00是绿色
+        notification.ledOnMS = 100;
+        notification.ledOffMS = 100;
+        notification.flags = Notification.FLAG_SHOW_LIGHTS;
         if (blueadapter == null) {
             Toast.makeText(this, "蓝牙不可用！！",
                     Toast.LENGTH_SHORT).show();
@@ -147,6 +158,11 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     }
     @Override
     public void TestCommunication(){
-        Toast.makeText(this,"通信正常！！",Toast.LENGTH_SHORT);
+       // Toast.makeText(this,"通信正常！！",Toast.LENGTH_SHORT);
+        nm.notify(ID_LED,notification);
+    }
+    protected void quit(){
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(0);
     }
 }

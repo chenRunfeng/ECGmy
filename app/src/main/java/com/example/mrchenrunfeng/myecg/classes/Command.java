@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
  */
 public class Command {
     public volatile static int intState=0xffff;//记录通信状态,初始化为无效状态。
-    public static List<Integer> listEcg=new ArrayList<Integer>();
     //帧首
     public static final int intFirstFrame=0xaa;
     //发送给下位机的命令帧
@@ -41,6 +40,7 @@ public class Command {
     public final static int SOCKET_NOTCOMUNICATIONCONNECTED=24;
     public final static int SAMPLING=25;
     public final static int NOTSAMPLEING=26;
+    public final static int SOCKET_NOTNOMALC=27;
     //处理心电数据命令
     public final static int MESSAGE_ECG=31;
 }

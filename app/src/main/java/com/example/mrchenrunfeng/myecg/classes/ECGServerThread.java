@@ -115,7 +115,6 @@ public class ECGServerThread extends Thread implements ECGServer {
     public  boolean sendCommand(int firstframe, int order, int arg1, int arg2) {
 
         try {
-
             mmOutputStream.write(firstframe);
             mmOutputStream.write(order);
             mmOutputStream.write(arg1);

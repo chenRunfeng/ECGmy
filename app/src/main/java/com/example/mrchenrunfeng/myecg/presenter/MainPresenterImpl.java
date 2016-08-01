@@ -67,6 +67,9 @@ public class MainPresenterImpl implements IMainPresenter {
                         }
                     });
                     break;
+                case Command.SOCKET_NOTNOMALC:
+                    agreement.AStopTest();
+                    break;
                 default:
                     break;
             }
@@ -94,6 +97,6 @@ public class MainPresenterImpl implements IMainPresenter {
         iBluetoothLink.connect();
     }
     public void Test(){
-        agreement.ATest();
+        agreement.AStartTest();
     }
 }

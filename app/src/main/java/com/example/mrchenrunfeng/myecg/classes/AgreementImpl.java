@@ -20,6 +20,7 @@ public class AgreementImpl implements Agreement {
     private  ExecutorService cachedThreadPool;
     private HandlerThread handlerThread;
     private ThreadsHandler threadsHandler;
+    private TestThread testThread;
     /**
      * Created by Mr.Chen RunFENG on 2016/7/31.
      */
@@ -44,6 +45,7 @@ public class AgreementImpl implements Agreement {
                         singleThreadExecutor.execute(ecgServerThread);
                     }
                 });
+                //this.post(ecgServerThread);
             }
         }
 
@@ -64,10 +66,18 @@ public class AgreementImpl implements Agreement {
       singleThreadExecutor.execute(ecgServerThread);
         //ecgServerThread.start();
     }
-    public void ATest(){
+    @Override
+    public void AStartTest(){
         handlerThread=new HandlerThread("Test handler");
         handlerThread.start();
         threadsHandler=new ThreadsHandler(handlerThread.getLooper());
-        cachedThreadPool.execute(new TestThread(threadsHandler,ecgServerThread,bluetoothLink));
+        testThread=new TestThread(threadsHandler,ecgServerThread,bluetoothLink);
+        //new Thread(new TestThread(threadsHandler,ecgServerThread,bluetoothLink)).start();
+        cachedThreadPool.execute(testThread);
+    }
+    @Override
+    public void AStopTest() {
+        if (testThread!=null)
+            testThread.setDone();
     }
 }
