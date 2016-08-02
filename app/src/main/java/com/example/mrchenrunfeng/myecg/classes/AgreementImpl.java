@@ -47,8 +47,10 @@ public class AgreementImpl implements Agreement {
                 });
                 //this.post(ecgServerThread);
             }
-        }
+            else if (msg.what==Command.SOCKET_NOTNOMALC){
 
+            }
+        }
     }
     public AgreementImpl(Handler h,BluetoothLink b){
         handler=h;

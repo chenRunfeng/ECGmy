@@ -75,6 +75,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                 break;
             case R.id.imbtnexit:
                 quit();
+                break;
             default:
                 break;
         }
@@ -112,6 +113,9 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         imbtnbluetooth=(ImageButton)findViewById(R.id.imbtnbluetooth);
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
         imbtnbluetooth.setOnClickListener(this);
+        imbtnexit=(ImageButton)findViewById(R.id.imbtnexit);
+        imbtnexit.setOnClickListener(this);
+        imbtnleading=(ImageButton)findViewById(R.id.imbtnleading);
         IntentFilter filter = new IntentFilter(BluetoothActivity.action);
         registerReceiver(broadcastReceiver, filter);
     }
@@ -143,14 +147,14 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         startActivityForResult(lanyaIntent, REQUEST_CONNECT_DEVICE);
     }
     @Override
-   public void Connect(){
+   public void Connected(){
             imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth);
             pd.cancel();
     }
     @Override
     public void DisConnected(){
        pd.cancel();
-        Toast.makeText(this,"建立连接失败！！",Toast.LENGTH_SHORT);
+        Toast.makeText(getApplicationContext(),"建立连接失败！！",Toast.LENGTH_SHORT);
     }
     @Override
     public void Connecting(){
@@ -158,9 +162,22 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     }
     @Override
     public void TestCommunication(){
-       // Toast.makeText(this,"通信正常！！",Toast.LENGTH_SHORT);
-        nm.notify(ID_LED,notification);
+        if(imbtnbluetooth.getAlpha()==(float) 0){
+            imbtnbluetooth.setAlpha((float)1);
+        }
+        else {
+            imbtnbluetooth.setAlpha((float)0);
+        }
     }
+
+    @Override
+    public void NotConnecting() {
+        imbtnbluetooth.setAlpha((float)1);
+        imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
+        Toast.makeText(getApplication(),"正在重新建立连接！！",Toast.LENGTH_SHORT);
+        Connecting();
+    }
+
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);

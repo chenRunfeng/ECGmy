@@ -6,9 +6,10 @@ package com.example.mrchenrunfeng.myecg.view;
 public interface IMainView {
   void DisConnected();
   void OpenBluetoothView();
-    void Connect();
+    void Connected();
   void Connecting();
   void TestCommunication();
+  void NotConnecting();
 //    void Play();
 //    void Close();
 //    void Save();

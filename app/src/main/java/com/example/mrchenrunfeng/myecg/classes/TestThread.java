@@ -26,8 +26,13 @@ public class TestThread extends Thread  implements Runnable {
                 Thread.sleep(1000);
                 //Log.v("Test", "" + Command.intTest);
                 ecgServer = new ECGServerThread(bluetoothLink);
-                ecgServer.sendCommand(Command.intFirstFrame, Command.intTest, 0x00, 0x00);
-                handler.obtainMessage(Command.intTest).sendToTarget();
+                boolean isnomacl=ecgServer.sendCommand(Command.intFirstFrame, Command.intTest, 0x00, 0x00);
+                if (isnomacl==true){
+                    handler.obtainMessage(Command.intTest).sendToTarget();
+                }
+                else {
+                    handler.obtainMessage(Command.SOCKET_NOTNOMALC).sendToTarget();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -45,11 +45,9 @@ public class ECGServerThread extends Thread implements ECGServer {
     }
     public synchronized void dataStream() {
         int mdata;
-        int isbreak;
         while (true) {
             try {
-                isbreak=mmInputStream.available();
-                if (isbreak==0)
+                if (mmInputStream.available()==0)
                     break;
                 mdata = mmInputStream.read();
                 if (mdata == Command.intFirstFrame) {
@@ -66,7 +64,7 @@ public class ECGServerThread extends Thread implements ECGServer {
 //                        Log.v("datalen:", "" + toHex(len));
 //                    while (true) {
                         //int bytes;
-                        if (len%2==0) {
+//                        if (len%2==0) {
                             byte[] buffer = new byte[len];
                             for (int i = 0; i < buffer.length; i = i + 2) {
                                 byte hght = (byte) mmInputStream.read();
@@ -74,7 +72,7 @@ public class ECGServerThread extends Thread implements ECGServer {
                                 buffer[i] = hght;
                                 buffer[i + 1] = low;
                                 Log.v("I:", "" + i);
-                            }
+//                            }
                             //bytes=mmInputStream.read(buffer);
                             //if (toHex(low)!="aa"||toHex(low)!=toHex(len));
                             mHandler.obtainMessage(Command.MESSAGE_ECG, -1, -1, buffer).sendToTarget();
@@ -128,10 +126,10 @@ public class ECGServerThread extends Thread implements ECGServer {
     }
     public synchronized void handleStream() {
         int mdata;
-        //mmInputStream
-        //while (true) {
         try {
-            if ((mdata = mmInputStream.read()) == Command.intFirstFrame) {
+//            if (mmInputStream.available()==0)
+//                return;
+            if ((mmInputStream.read()) == Command.intFirstFrame) {
                 mdata = mmInputStream.read();
                 if (mdata == Command.intCType) {
                     mCommand = mmInputStream.read();
@@ -176,4 +174,11 @@ public class ECGServerThread extends Thread implements ECGServer {
 //     public void setDone(){
 //     done = true;
 //     }
+//    private void inputbreak(){
+//        try {
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

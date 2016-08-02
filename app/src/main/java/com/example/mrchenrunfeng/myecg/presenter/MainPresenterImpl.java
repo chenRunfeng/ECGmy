@@ -44,7 +44,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mainView.Connect();
+                            mainView.Connected();
                             Test();
                         }
                     });
@@ -60,7 +60,8 @@ public class MainPresenterImpl implements IMainPresenter {
                 case Command.SOCKET_NOTCOMUNICATIONCONNECTED:
                    break;
                 case Command.SOCKET_ISNOMALC:
-                    mHandler.post(new Runnable() {
+                    mHandler.post(new Runnable()
+                     {
                         @Override
                         public void run() {
                           mainView.TestCommunication();
@@ -68,7 +69,14 @@ public class MainPresenterImpl implements IMainPresenter {
                     });
                     break;
                 case Command.SOCKET_NOTNOMALC:
-                    agreement.AStopTest();
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainView.NotConnecting();
+                            agreement.AStopTest();
+
+                        }
+                    });
                     break;
                 default:
                     break;
