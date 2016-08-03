@@ -10,6 +10,7 @@ public interface IMainView {
   void Connecting();
   void TestCommunication();
   void NotConnecting();
+  void LostConnect();
 //    void Play();
 //    void Close();
 //    void Save();

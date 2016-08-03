@@ -1,7 +1,6 @@
 package com.example.mrchenrunfeng.myecg.activity;
 
 import android.app.Activity;
-import android.app.LoaderManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -10,27 +9,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
-import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import  com.example.mrchenrunfeng.myecg.classes.*;
 
 import com.example.mrchenrunfeng.myecg.R;
 import com.example.mrchenrunfeng.myecg.presenter.IMainPresenter;
 import com.example.mrchenrunfeng.myecg.presenter.MainPresenterImpl;
 import com.example.mrchenrunfeng.myecg.view.ECGSurfaceView;
+import com.example.mrchenrunfeng.myecg.view.IECGSurfaceView;
 import com.example.mrchenrunfeng.myecg.view.IMainView;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity implements IMainView,View.OnClickListener {
     NotificationManager nm;
@@ -39,39 +28,32 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     private  IMainPresenter mainPresenter;
     private ProgressDialog pd;
     //启动blueactivity.
-    private Intent lanyaIntent;
-    private static boolean hasConnected = false;
-    private int mstate;
+    private Intent bluetooth;
     //启动扫描页面蓝牙请求连接代号
     private static final int REQUEST_CONNECT_DEVICE = 1;
     //蓝牙地址
     private String address = null;
-    //private static ProcessData mProcessData;
     ImageButton imbtnbluetooth, imbtnleading, imbtnplay, imbtnlist, imbtnexit;
     private BluetoothAdapter blueadapter;
-    private static final int REQUEST_ENABLE_BT = 1;
     private boolean btnstatus = true;//记录播放按钮的状态
-    private Handler handler;
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
-        ECGSurfaceView ecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
+        IECGSurfaceView iecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
         switch (v.getId()) {
             case R.id.imbtnplay:
                 if (btnstatus) {
-                    ecgSurfaceView.startECG(btnstatus);
+                    iecgSurfaceView.StartDraw();
                     imbtnplay.setBackgroundResource(R.drawable.stop);
                     btnstatus = false;
                 } else {
                     imbtnplay.setBackgroundResource(R.drawable.play);
-                    ecgSurfaceView.stopECG(btnstatus);
+                    iecgSurfaceView.StopDraw();
                     btnstatus = true;
                 }
                 break;
             case R.id.imbtnbluetooth:
-                if (!hasConnected) {
                     OpenBluetoothView();
-                }
                 break;
             case R.id.imbtnexit:
                 quit();
@@ -123,13 +105,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     protected void onStart() {
         // TODO Auto-generated method stub
         super.onStart();
-        enableBluetoothFunction();
         //checkExternalStorageMounted();
-    }
-    //开启蓝牙连接
-    private void enableBluetoothFunction() {
-        imbtnbluetooth = (ImageButton) findViewById(R.id.imbtnbluetooth);
-        blueadapter = BluetoothAdapter.getDefaultAdapter();
     }
     //蓝牙搜索结果处理
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -142,9 +118,9 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     };
     @Override
     public void OpenBluetoothView(){
-        lanyaIntent = new Intent();
-        lanyaIntent.setClass(MainActivity.this, BluetoothActivity.class);
-        startActivityForResult(lanyaIntent, REQUEST_CONNECT_DEVICE);
+        bluetooth = new Intent();
+        bluetooth.setClass(MainActivity.this, BluetoothActivity.class);
+        startActivityForResult(bluetooth, REQUEST_CONNECT_DEVICE);
     }
     @Override
    public void Connected(){
@@ -154,7 +130,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
     public void DisConnected(){
        pd.cancel();
-        Toast.makeText(getApplicationContext(),"建立连接失败！！",Toast.LENGTH_SHORT);
+        Toast.makeText(getApplicationContext(),"建立连接失败！！",Toast.LENGTH_LONG).show();
     }
     @Override
     public void Connecting(){
@@ -174,10 +150,15 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     public void NotConnecting() {
         imbtnbluetooth.setAlpha((float)1);
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
-        Toast.makeText(getApplication(),"正在重新建立连接！！",Toast.LENGTH_SHORT);
+        pd.setMessage("正在重新建立连接......");
+        //Toast.makeText(getApplication(),"正在重新建立连接！！",Toast.LENGTH_SHORT);
         Connecting();
     }
 
+    @Override
+    public void LostConnect() {
+        Toast.makeText(getApplicationContext(),"连接失败,检查设备，重新连接蓝牙！！",Toast.LENGTH_LONG).show();
+    }
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);

@@ -1,116 +1,66 @@
 package com.example.mrchenrunfeng.myecg.view;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
+
+import com.example.mrchenrunfeng.myecg.classes.Command;
+
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ECGSurfaceView extends SurfaceView implements
-		SurfaceHolder.Callback {
+		SurfaceHolder.Callback,IECGSurfaceView {
+	DrawThread drawThread=null;
+	 List<Integer> mSaveData = new ArrayList<Integer>();
+	int lStartX;
+	int centerY;
+    int paintflag=1;//绘图是否暂停标志位，0为暂停
+	TimerTask task=null;
+	Timer timer =new Timer();
 	//控制对象
 	private SurfaceHolder holder = null;
-	private Vector<Float> xs = new Vector<Float>();
-	private Vector<Float> ys = new Vector<Float>();
-	private boolean ecgstatus;
 	/**
 	 * 创建画笔
 	 */
 	private Paint linePaint = new Paint();
-	/**
-	 * �ĵ�ͼ���
-	 */
-//	private Integer[] dataY = {100, 200, 210, 200, 201, 205, 200, 199,50,230,200,215,216,222,225,227,400,230,220,222,226
-//							  ,100, 200, 210, 200, 201, 205, 200, 199,50,230,200,215,216,222,225,227,400,230,220,222,226
-//							  ,100, 200, 210, 200, 201, 205, 200, 199,50,230,200,215,216,222,225,227,400,230,220,222,226
-//							  ,100, 200, 210, 200, 201, 205, 200, 199,50,230,200,215,216,222,225,227,400,230,220,222,226
-//							  ,100, 200, 210, 200, 201, 205, 200, 199,50,230,200,215,216,222,225,227,400,230,220,222,226
-//							  ,100, 200, 210, 200, 201, 205, 200, 199,50,230,200,215,216,222,225,227,400,230,220,222,226};
-//	private Integer[] dataY = {230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232
-//							  ,230,230,228,227,226,225,205,185,165,145,125,105,103,101,100,99,100,101,103,105,125,145,165,185,205,225,226,228,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,235,260,285,310,335,336,337,336,335,285,265,245,240,235,230,228,227,226,225,226,227,228,229,230,232,234,236,237,238,237,236,234,232,222,212,213,212,212,222,232,235,234,232,235,236,235,231,226,225,226,231,235,236,235,225,215,205,204,203,204,205,215,225,228,230,232};
-	private Integer[] dataY = {230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232
-							  ,230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232
-							  ,230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232
-							  ,230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232
-							  ,230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232
-							  ,230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232
-							  ,230,200,170,140,110,105,110,140,170,200,230,236,234,214,212,214,234,236,234,233,230,232,229,232,230,233,236,232,230,235,233,230,210,190,188,190,236,235,234,233,230,235,238,240,290,340,342,340,290,240,236,234,233,236,233,232};
-	/**
-	 * 心电数据集合
-	 */
-	private ArrayList<Integer> dataListY = new ArrayList<Integer>();
-	/**
-	 * 标识是否是第一次画图
-	 */
-	private boolean isFirstDraw = true;
-	/**
-	 * 在画布上正在显示的数据集合
-	 */
-	private ArrayList<Integer> showedList = new ArrayList<Integer>();
-	/**
-	 * 已经显示的数据波形 最多能够显示的单位格数量（横坐标为15px为一格）
-	 */
-	private int maxNum = 0;
-
-	/**
-	 * 显示的波形每个单元格�?��的位�?X轴坐�?
-	 */
-	private int showedBeginX = 0;
-	/**
-	 * 显示的波形每个单元格结束的位�?X轴坐�?
-	 */
-	private int showedEndX = 0;
-	/**
-	 * 显示的波形每个单元格�?��的时候波形长度的�?Y轴坐�?
-	 */
-	private int showedBeginY = 0;
-	/**
-	 * 显示的波形每个单元格结束的时候波形长度的�?Y轴坐�?
-	 */
-	private int showedEndY = 0;
-
-	/**
-	 *心率、血氧�?无创�?�� 、中心静脉压
-	 */
-	private int[] otherInformations={58,96,120,80,12,78};
+	private Canvas mCanvas;
+	private int canvaswidth;
+	private int canvasheigth;
 //	/**
 //	 * 右边部分平均每一行所占高度
 //	 */
-//	private int simpleHeight=0;
-	private Bitmap backgroundBitmap=null;
 
 	public ECGSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		holder = getHolder();
 		holder.addCallback(this);
-
-		//backgroundBitmap=BitmapFactory.decodeResource(context.getResources(), R.drawable.ecg_background);
-
-		//将心电数据数组转换成心电数据集合
-		for (int i = 0; i < dataY.length; i++) {
-			dataListY.add(dataY[i]);
-		}
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
 		System.out.println("surfaceCreated!!");
-		//new Thread(new MyLoop()).start();
+		DrawBack();
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
@@ -119,186 +69,333 @@ public class ECGSurfaceView extends SurfaceView implements
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		System.out.println("surfaceDestroyed!!");
+		//cachedThreadpool.shutdown();
 	}
-    public void startECG(boolean b){
-		new Thread(new MyLoop()).start();
-		ecgstatus=b;
+    public void StartDraw(){
+				drawThread=new DrawThread();
+				drawThread.start();
+			paintflag=1;
 	}
-	public  void stopECG(boolean b){
-		ecgstatus=b;
+	public  void StopDraw(){
+		paintflag = 0;
+		Command.mShowData.clear();
 	}
 
 
 	/**
 	 * 画图的方法
 	 *
-	 * @param canvas
 	 */
-	private Canvas doDraw(Canvas canvas) {
-		super.draw(canvas);
-		int width = canvas.getWidth();
-		int height = canvas.getHeight();
-//		canvas.clipRect(0, 0, width/2, height);
-		//判断是否是第�?��在屏幕上画波�?
-		if (isFirstDraw) {
-			maxNum = (width- 5) / 5;
-//			simpleHeight=height/6;
-		}
-		//画Y轴
+    public synchronized void DrawBack(){
+		try {
+			//timer.cancel();
+			paintflag=0;
+			mCanvas = holder.lockCanvas();
+			mCanvas.drawColor(Color.BLACK);
+			canvaswidth = mCanvas.getWidth();
+			canvasheigth = mCanvas.getHeight();
+			int height=canvasheigth;
+			int width=canvaswidth;
+			//画Y轴
 //		linePaint.setStyle(Paint.Style.STROKE);
 //		linePaint.setStrokeWidth((float)5.0);
 //		linePaint.setColor(Color.RED);
 //		linePaint.setAntiAlias(true);// 锯齿不显示
-		int lStartX = 30;
-		int lStartY = 30;
-		//临时坐标
-		int temp = 30;
-		//中线位置
-		int ltempy=height/2;
-		//刻度
-		double scale=0.25;
-		//起始刻度
-		double sstart=0.25;
-		// 画背景格子
-		for (int i=0;i<height;i++ )
-		{
-//			if (lStartY==width/2)
-//			{
-
-
-             ltempy+=15;
-//			} else {
-				linePaint.setStrokeWidth(1);
-			linePaint.setColor(Color.GRAY);
-			canvas.drawLine(lStartX, ltempy, width, ltempy, linePaint);
-			linePaint.setTextSize(8);
-			linePaint.setColor(Color.CYAN);
-			canvas.drawText("-" + Double.toString(sstart), 2, ltempy, linePaint);
-//			}
-			sstart+=0.25;
-			//lStartY += 15;
-		}
-		//画竖线
-		ltempy=height/2;
-		sstart=0;
-		for (int i = 0; i < height; i++) {
-			if (i==height/2)
+			lStartX = width/38;
+			centerY = height/2;
+			//临时坐标
+			int temp = lStartX;
+			//中线位置
+			int ltempy=centerY;
+			//刻度
+			double scale=0.25;
+			//起始刻度
+			double sstart=0.25;
+			// 画背景格子
+			for (int i=0;i<height;i++ )
 			{
-				linePaint.setColor(Color.RED);
-				linePaint.setStrokeWidth(2);
-				canvas.drawLine(lStartX, height / 2, width, height / 2, linePaint);
-				linePaint.setTextSize(10);
-				//linePaint.setColor(Color.CYAN);
-				canvas.drawText("0", 20,height/2, linePaint);
+				ltempy+=15;
+				linePaint.setStrokeWidth(1);
+				linePaint.setColor(Color.GRAY);
+				mCanvas.drawLine(lStartX, ltempy, width, ltempy, linePaint);
+				linePaint.setTextSize(8);
+				linePaint.setColor(Color.CYAN);
+				mCanvas.drawText("-" + Double.toString(sstart), 2, ltempy, linePaint);
+				sstart+=0.25;
+				//lStartY += 15;
 			}
+			//画竖线
+			ltempy=height/2;
+			sstart=0;
+			for (int i = 0; i < height; i++) {
+				if (i==centerY)
+				{
+					linePaint.setColor(Color.RED);
+					linePaint.setStrokeWidth(2);
+					mCanvas.drawLine(lStartX, centerY, width, centerY, linePaint);
+					linePaint.setTextSize(10);
+					//linePaint.setColor(Color.CYAN);
+					mCanvas.drawText("0", 20,height/2, linePaint);
+				}
 
-			linePaint.setStrokeWidth(1);
-			linePaint.setColor(Color.GRAY);
-			canvas.drawLine(temp, 0, temp, height, linePaint);
-			ltempy-=15;
+				linePaint.setStrokeWidth(1);
+				linePaint.setColor(Color.GRAY);
+				mCanvas.drawLine(temp, 0, temp, height, linePaint);
+				ltempy-=15;
 //			lStartY=height/2;
-			canvas.drawLine(lStartX, ltempy, width, ltempy, linePaint);
-			linePaint.setTextSize(8);
-			linePaint.setColor(Color.CYAN);
-			canvas.drawText(Double.toString(sstart), 2, ltempy, linePaint);
+				mCanvas.drawLine(lStartX, ltempy, width, ltempy, linePaint);
+				linePaint.setTextSize(8);
+				linePaint.setColor(Color.CYAN);
+				mCanvas.drawText(Double.toString(sstart), 2, ltempy, linePaint);
 //			}
-			sstart+=0.25;
+				sstart+=0.25;
 //			canvas.drawLine(lStartX, lStartY, height/7+1, lStartY, linePaint);
 //			lStartY += 15;
 //			canvas.drawLine(temp, 0, temp, height, linePaint);
-			temp+=15;
-		}
-
-		//判断心电数据集合中是否有数据
-		if(dataListY.size()==1||dataListY.size()==0){
-			dataListY.add(height/2);
-		}
-
-		//如果心电数据集合中有数据
-		if (dataListY.size() != 0 && dataListY != null) {
-			linePaint.setColor(Color.GREEN);
-			// 设置画笔的线条粗�?+(5 * showedList.size()+5)
-			linePaint.setStrokeWidth(2);
-			if (showedList.size() != 0 && showedList != null) {
-				showedBeginX = 30;
-				showedEndX = showedBeginX + 5;
-				showedBeginY = height / 2;
-				for (int i = 0; i < showedList.size(); i++) {
-					if (ecgstatus) {
-						showedEndY = showedList.get(i);
-						canvas.drawLine(showedBeginX, showedBeginY, showedEndX, showedEndY, linePaint);
-						showedBeginX = showedEndX;
-						showedEndX = showedBeginX + 5;
-						showedBeginY = showedEndY;
-						if (showedList.size() != 1 && showedList.size() != (i + 1)) {
-							try {
-								showedEndY = showedList.get(i + 1);
-							} catch (Exception e) {
-								e.printStackTrace();
-								break;
-							}
-						}
-					}
-					else {break;}
-				}
+				temp+=15;
 			}
-			// 如果能完全显示已经显示过的波形数据就就直接添加进显示过波形数据的集合中否则去掉第一个再添加进去
-			if (showedList.size() < maxNum) {
-				showedList.add(dataListY.get(0));
-				dataListY.remove(0);
-			} else {
-				showedList.remove(0);
-				showedList.add(dataListY.get(0));
-				dataListY.remove(0);
-				// 此时已经没有了心电数�?
-				if (dataListY.size() == 0) {
-					// 则将心电数据设置为没有的状�?�?显示为一条直�?
-					dataListY.add(height / 2);
-				}
-			}
-			isFirstDraw = false;
 			int simpleHeight=height/6;
 			//心率
 			linePaint.setTextSize(width*3/100);
 			linePaint.setColor(Color.CYAN);
-			canvas.drawText("心率(HR)", width*9/11, simpleHeight/4, linePaint);
+			mCanvas.drawText("心率(HR)", width*9/11, simpleHeight/4, linePaint);
 			linePaint.setTextSize(width*2/100);
-			canvas.drawText("bpm", width*16/17, simpleHeight/4, linePaint);
+			mCanvas.drawText("bpm", width*16/17, simpleHeight/4, linePaint);
 			linePaint.setColor(Color.MAGENTA);
 			linePaint.setTextSize(width*5/100);
-			canvas.drawText(String.valueOf(otherInformations[0]), width*12/13, simpleHeight-(simpleHeight/5), linePaint);
+			mCanvas.drawText("0", width*12/13, simpleHeight-(simpleHeight/5), linePaint);
+			//mCanvas.drawPath(mPath, mPaint);
+		} catch (Exception e) {
+		} finally {
+			if (mCanvas != null)
+				holder.unlockCanvasAndPost(mCanvas);
+			paintflag=1;
+			    //holder.lockCanvas(new Rect(0,0,0,0)); //锁定局部区域，其余地方不做改变
+                //holder.unlockCanvasAndPost(mCanvas);
+			//timer.
 		}
-		return canvas;
-	}
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			xs.add(event.getX());
-			ys.add(event.getY());
-		}
-		return true;
 	}
 
-	class MyLoop implements Runnable {
-		Canvas mCanvas = null;
-
+	/**
+	 * 保存成二进制文件
+	 * //@param fileName：文本框输入的文件名
+	 */
+//	public void saveFile1(String fileName){
+//		System.out.println("");
+//
+//		// 先判断是否有SDCard
+//		if ((Environment.getExternalStorageState() != null) && (fileName != null)) {
+//
+//			if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
+//				// 创建一个文件夹对象，赋值为外部存储器的目录
+//				File sdcardDir =Environment.getExternalStorageDirectory();
+//				//得到一个路径，内容是sdcard的文件夹路径和名字
+//				String path = sdcardDir.getPath()+"/EcgData";
+//				File path1 = new File(path);
+//				if (!path1.exists()) {
+//					//若不存在，创建目录，可以在应用启动的时候创建
+//					path1.mkdirs();
+//				}
+//
+//				File file = new File(path1, fileName+".txt");
+//				FileOutputStream fOut = null;
+//				BufferedOutputStream bos = null;
+//				try {
+//					fOut = new FileOutputStream(file);
+//					bos = new BufferedOutputStream(fOut);
+//
+//				} catch (FileNotFoundException e) {
+//					// TODO 自动生成的 catch 块
+//					e.printStackTrace();
+//
+//				}
+//				DataOutputStream dos = new DataOutputStream(bos);
+//
+//				System.out.println(mShowData.isEmpty());
+//
+//				if (!mSaveData.isEmpty()) {
+//					//Toast.makeText(this, "保存成二进制文件", Toast.LENGTH_SHORT).show();
+//					try {
+//
+//						for (int i = 0; i < 4000; i++) {
+//							int Data = mSaveData.poll();
+//							try {
+//								dos.writeShort(Data);
+//
+//							} catch (Exception e) {
+//								// TODO: handle exception
+//								System.out.println("save here");
+//
+//							}
+//
+//						}
+//
+//					}
+//					finally{
+//						try {
+//
+//							dos.close();
+//							//Toast.makeText(MainActivity.this, path + "/"+fileName, Toast.LENGTH_LONG).show();
+//
+//						} catch (IOException e) {
+//							// TODO 自动生成的 catch 块
+//							e.printStackTrace();
+//
+//						}
+//					}
+//
+//
+//				}
+//
+//
+//			}
+//
+//		}
+//
+//	}
+	//@Override
+//	public boolean onTouchEvent(MotionEvent event) {
+//		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//			xs.add(event.getX());
+//			ys.add(event.getY());
+//		}
+//		return true;
+//	}
+	//绘图线程，实时获取temp 数值即是y值
+	private class DrawThread extends Thread {
+        int cx=lStartX;
+		int bx;
+		float by=centerY;
 		public void run() {
-			while (true) {
-				try {
-					System.out.println("MyLoop Thread start!!!");
-					mCanvas = holder.lockCanvas();
-					mCanvas.drawColor(Color.BLACK);
-//					mCanvas.drawBitmap(backgroundBitmap, 0, 0, linePaint);
-					doDraw(mCanvas);
-					System.out.println("Myloop Thread will end!!!");
-//					Thread.sleep(200);
-				} catch (Exception e) {
-					System.out.println("MyLoop Thread exception!!!");
-				} finally {
-					if (mCanvas != null) {
-						System.out.println("MyLoop Thread finally unlockCanvasAndPost()!!!!");
-						holder.unlockCanvasAndPost(mCanvas);
+			//while (!done) {
+				//final Object obj = new Object();//申请一个对象
+				DrawBack();
+				// TODO Auto-generated method stub
+				//drawBack(holder);    //画出背景和坐标轴
+				if (task != null) {
+					task.cancel();
+				}
+				task = new TimerTask() { //新建任务
+					@Override
+					public void run() {
+						if (paintflag == 1) {
+							if (Command.mShowData.isEmpty() == false) {
+								int data=Command.mShowData.poll();
+								float cy = centerY - (float) (finalecgdata(data)/2);
+								mSaveData.add(data);
+								//实时获取的temp数值，因为对于画布来说
+								bx = cx;
+								cx+=2;                               //cx 自增， 就类似于随时间轴的图形
+								//最左上角是原点，所以我要到y值，需要从画布中间开始计数
+								Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+								//锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+								linePaint.setColor(Color.GREEN);//设置波形颜色
+								canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+								holder.unlockCanvasAndPost(canvas);  //解锁画布
+								by = cy;
+								//cx++; //间距自己设定
+								//synchronized (this) {
+								if (cx >= canvaswidth) {
+									cx = lStartX;
+									DrawBack();
+									//画满之后，清除原来的图像，从新开始
+								}
+								//}
+
+							}
+						}
 					}
+				};
+				timer.schedule(task, 0, 1); //隔1ms被执行一次该循环任务画出图形
+				//简单一点就是1ms画出一个点，然后依次下去
+			//}
+		}
+		private int finalecgdata(int arg){
+			int ecgdata=arg;
+			if (arg==Command.ESCAPE_CHAR){
+			  int next=Command.mShowData.poll();
+				if (next==Command.SPECIAL_CHAR){
+					ecgdata= Command.ESCAPE_CHAR;
+				}
+				else if (next==Command.SPECIAL_CHAR1){
+					ecgdata= Command.intFirstFrame;
+				}
+			}
+			return ecgdata;
+		}
+	}
+	/**
+	 * 保存成二进制文件
+	 *
+	 */
+	public void saveFile1(String fileName){
+		System.out.println("开始保存："+mSaveData.size());
+
+		// 先判断是否有SDCard
+		if ((Environment.getExternalStorageState() != null) && (fileName != null)) {
+
+			if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
+				// 创建一个文件夹对象，赋值为外部存储器的目录
+				File sdcardDir =Environment.getExternalStorageDirectory();
+				//得到一个路径，内容是sdcard的文件夹路径和名字
+				String path = sdcardDir.getPath();
+				File path1 = new File(path);
+				if (!path1.exists()) {
+					//若不存在，创建目录，可以在应用启动的时候创建
+					path1.mkdirs();
+				}
+
+				File file = new File(path1, fileName+".txt");
+				FileOutputStream fOut = null;
+				BufferedOutputStream bos = null;
+				try {
+					fOut = new FileOutputStream(file,true);
+					bos = new BufferedOutputStream(fOut);
+
+				} catch (FileNotFoundException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+
+				}
+				DataOutputStream dos = new DataOutputStream(bos);
+
+				System.out.println(Command.mShowData.isEmpty());
+
+				if (!mSaveData.isEmpty()) {
+					try {
+
+						for (int i = 0; i <mSaveData.size(); i++) {
+						double Data = mSaveData.get(i).doubleValue();
+							//short Data=1;
+							try {
+								dos.writeDouble(Data);
+
+							} catch (Exception e) {
+								// TODO: handle exception
+								System.out.println("save here");
+
+							}
+
+						}
+
+					}
+					finally{
+						try {
+
+							dos.close();
+//							Toast.makeText(
+//									Application., path + "/"+fileName, Toast.LENGTH_LONG).show();
+							Log.v("保存 成功！",""+path + "/"+fileName);
+							Toast.makeText(getContext(), "保存成文件", Toast.LENGTH_SHORT).show();
+
+						} catch (IOException e) {
+							// TODO 自动生成的 catch 块
+							e.printStackTrace();
+
+						}
+					}
+
+
 				}
 			}
 

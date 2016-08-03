@@ -5,6 +5,6 @@ package com.example.mrchenrunfeng.myecg.classes;
  */
 public interface ECGServer {
      void dataStream();
-     boolean sendCommand(int firstframe, int order, int arg1, int arg2);
+     int sendCommand(int firstframe, int order, int arg1, int arg2);
 
 }

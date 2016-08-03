@@ -45,10 +45,14 @@ public class AgreementImpl implements Agreement {
                         singleThreadExecutor.execute(ecgServerThread);
                     }
                 });
-                //this.post(ecgServerThread);
             }
             else if (msg.what==Command.SOCKET_NOTNOMALC){
-
+                this.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        handler.obtainMessage(Command.SOCKET_NOTNOMALC).sendToTarget();
+                    }
+                });
             }
         }
     }
@@ -63,10 +67,18 @@ public class AgreementImpl implements Agreement {
        // new Thread(new ConnectedThread(bluetoothLink)).start();
       //cachedThreadPool.execute(new ConnectedThread(bluetoothLink));
       ecgServerThread=new ECGServerThread(handler,bluetoothLink);
-        ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartConnectOrder,0x00,0x00);
-        //ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartConnectOrder,0x00,0x00);
-      singleThreadExecutor.execute(ecgServerThread);
-        //ecgServerThread.start();
+      int isrecive=ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartConnectOrder,0x00,0x00);
+        if (isrecive==Command.SOCKET_ISNOMALC){
+            //ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartConnectOrder,0x00,0x00);
+            singleThreadExecutor.execute(ecgServerThread);
+            //ecgServerThread.start();
+        }
+        else if (isrecive==Command.SOCKET_NOTNOMALC){
+            handler.obtainMessage(Command.SOCKET_NOTCOMUNICATIONCONNECTED).sendToTarget();
+        }
+        else{
+            handler.obtainMessage(Command.SOCKET_CLOSED).sendToTarget();
+        }
     }
     @Override
     public void AStartTest(){
@@ -81,5 +93,12 @@ public class AgreementImpl implements Agreement {
     public void AStopTest() {
         if (testThread!=null)
             testThread.setDone();
+    }
+
+    @Override
+    public void ARecieveData() {
+        if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartSample,0,0)==Command.SOCKET_ISNOMALC){
+        singleThreadExecutor.execute(ecgServerThread);
+        }
     }
 }
