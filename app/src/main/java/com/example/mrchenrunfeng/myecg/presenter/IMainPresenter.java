@@ -8,5 +8,6 @@ public interface IMainPresenter {
     void Connected();
     //MainPresenterImpl getUniqueInstance();
     void Test();
-//    void ShowECG();
+    void StartSample();
+    void StopSample();
 }

@@ -96,9 +96,24 @@ public class AgreementImpl implements Agreement {
     }
 
     @Override
-    public void ARecieveData() {
+    public void AStartSample() {
         if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStartSample,0,0)==Command.SOCKET_ISNOMALC){
         singleThreadExecutor.execute(ecgServerThread);
+        }
+    }
+
+    @Override
+    public void ARecieveData() {
+        singleThreadExecutor.execute(ecgServerThread.GetThread());
+    }
+
+    @Override
+    public void AStopSample() {
+        if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStopSample,0,0)==Command.SOCKET_ISNOMALC){
+            //停止接收数据线程
+           // ecgServerThread.setDone();
+            //开启接收命令线程
+            singleThreadExecutor.execute(ecgServerThread);
         }
     }
 }

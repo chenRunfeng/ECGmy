@@ -11,6 +11,8 @@ public interface IMainView {
   void TestCommunication();
   void NotConnecting();
   void LostConnect();
+  void StopSampling();
+  void Stopsampled();
 //    void Play();
 //    void Close();
 //    void Save();

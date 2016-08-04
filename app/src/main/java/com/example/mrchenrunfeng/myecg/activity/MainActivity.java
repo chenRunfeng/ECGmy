@@ -43,10 +43,12 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         switch (v.getId()) {
             case R.id.imbtnplay:
                 if (btnstatus) {
+                    mainPresenter.StartSample();
                     iecgSurfaceView.StartDraw();
                     imbtnplay.setBackgroundResource(R.drawable.stop);
                     btnstatus = false;
                 } else {
+                    mainPresenter.StopSample();
                     imbtnplay.setBackgroundResource(R.drawable.play);
                     iecgSurfaceView.StopDraw();
                     btnstatus = true;
@@ -125,11 +127,12 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
    public void Connected(){
             imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth);
-            pd.cancel();
+            imbtnbluetooth.setAlpha((float)1);
+            pd.dismiss();
     }
     @Override
     public void DisConnected(){
-       pd.cancel();
+       pd.dismiss();
         Toast.makeText(getApplicationContext(),"建立连接失败！！",Toast.LENGTH_LONG).show();
     }
     @Override
@@ -159,6 +162,18 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     public void LostConnect() {
         Toast.makeText(getApplicationContext(),"连接失败,检查设备，重新连接蓝牙！！",Toast.LENGTH_LONG).show();
     }
+
+    @Override
+    public void StopSampling() {
+        pd.setMessage("正在停止采样......");
+        pd.show();
+    }
+
+    @Override
+    public void Stopsampled() {
+        pd.dismiss();
+    }
+
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);

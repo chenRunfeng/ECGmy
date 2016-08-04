@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
  * Created by Mr.Chen RunFENG on 2016/7/19.
  */
 public class ECGServerThread extends Thread implements ECGServer {
-    //private volatile boolean done = false;
+    private  boolean done = false;
     protected static BluetoothSocket mSocket;
     protected BluetoothLink mBluetoothLink;
     protected static OutputStream mmOutputStream;
@@ -41,16 +41,19 @@ public class ECGServerThread extends Thread implements ECGServer {
     public void run() {
 //        while (!done) {
         handleStream();
-        dataStream();
+        //dataStream();
         // }
     }
 
     public synchronized void dataStream() {
         int mdata;
+        done = false;
         while (true) {
             try {
-                if (mmInputStream.available() == 0)
+                if (done==true) {
+                    Log.v("DONE:",""+done);
                     break;
+                }
                 mdata = mmInputStream.read();
                 if (mdata == Command.intFirstFrame) {
                     Log.v("Firstframe:", "" + mdata);
@@ -59,14 +62,19 @@ public class ECGServerThread extends Thread implements ECGServer {
                     if (mdata == Command.intData) {
                         int len;
                         len = mmInputStream.read();
-                        byte hght = (byte) mmInputStream.read();
-                        byte low = (byte) mmInputStream.read();
-                        Log.v("ECGDATA:",len+""+(int)byteToShort(low,hght));
-                        Command.mShowData.offer((int)byteToShort(low,hght));
+                        byte[] buffer=new byte[len];
+                        mmInputStream.read(buffer);
+                        //while ()
+                        for (int i=0;i<buffer.length;i+=2){
+                            byte hght = buffer[i];
+                            byte low = buffer[i+1];
+                            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
+                            Command.mShowData.offer((int) byteToShort(low, hght));
+                        }
                     }
-                } else {
+                } /*else {
                     break;
-                }
+                }*/
             } catch (IOException e) {
                 // TODO �Զ���ɵ� catch ��
                 Log.v(e.getMessage(), "   read data fail  ");
@@ -157,10 +165,15 @@ public class ECGServerThread extends Thread implements ECGServer {
         return result;
     }
 
-    //     public void setDone(){
-//     done = true;
-//     }
-//    private void inputbreak(){
+    public Runnable GetThread() {
+        return new recieveThread();
+    }
+
+    public void setDone() {
+        done = true;
+    }
+
+    //    private void inputbreak(){
 //        try {
 //
 //        } catch (IOException e) {
@@ -176,27 +189,10 @@ public class ECGServerThread extends Thread implements ECGServer {
         s = (short) (s0 | s1);
         return s;
     }
-    //判断转义字符
-    private void finalecgdata(byte[] readBuf){
-        short shortecgdata=0;
-        for (int i=0;i<readBuf.length;i=i+2) {
-           shortecgdata =byteToShort(readBuf[i+1],readBuf[i]);
-            if (shortecgdata==Command.ESCAPE_CHAR){
-                if (i<readBuf.length-4) {
-                    short next=byteToShort(readBuf[i+3],readBuf[i+2]);
-                    if (next==Command.SPECIAL_CHAR){
-                        shortecgdata=Command.ESCAPE_CHAR;
-                    }
-                    else if (next==Command.SPECIAL_CHAR1){
-                        shortecgdata= Command.intFirstFrame;
-                    }
-                    i+=2;
-                } else {
 
-                }
-            }
-            Log.v("ECGhandler successfully",""+shortecgdata+" /n ");
-            Command.mShowData.offer((int)shortecgdata);
+    private class recieveThread implements Runnable {
+        public void run() {
+            dataStream();
         }
     }
 }

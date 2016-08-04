@@ -267,49 +267,54 @@ public class ECGSurfaceView extends SurfaceView implements
 		int bx;
 		float by=centerY;
 		public void run() {
+			DrawBack();
+			while (paintflag == 1) {
+				updateECG();
+			}
 			//while (!done) {
 				//final Object obj = new Object();//申请一个对象
-				DrawBack();
 				// TODO Auto-generated method stub
 				//drawBack(holder);    //画出背景和坐标轴
-				if (task != null) {
-					task.cancel();
-				}
-				task = new TimerTask() { //新建任务
-					@Override
-					public void run() {
-						if (paintflag == 1) {
-							if (Command.mShowData.isEmpty() == false) {
-								int data=Command.mShowData.poll();
-								float cy = centerY - (float) (finalecgdata(data)/2);
-								mSaveData.add(data);
-								//实时获取的temp数值，因为对于画布来说
-								bx = cx;
-								cx+=2;                               //cx 自增， 就类似于随时间轴的图形
-								//最左上角是原点，所以我要到y值，需要从画布中间开始计数
-								Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-								//锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-								linePaint.setColor(Color.GREEN);//设置波形颜色
-								canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-								holder.unlockCanvasAndPost(canvas);  //解锁画布
-								by = cy;
-								//cx++; //间距自己设定
-								//synchronized (this) {
-								if (cx >= canvaswidth) {
-									cx = lStartX;
-									DrawBack();
-									//画满之后，清除原来的图像，从新开始
-								}
-								//}
-
-							}
-						}
-					}
-				};
-				timer.schedule(task, 0, 1); //隔1ms被执行一次该循环任务画出图形
+//				if (task != null) {
+//					task.cancel();
+//				}
+//				task = new TimerTask() { //新建任务
+//					@Override
+//					public void run() {
+//						if (paintflag == 1) {
+//							updateECG();
+//						}
+//					}
+//				};
+//				timer.schedule(task, 0, 1); //隔1ms被执行一次该循环任务画出图形
 				//简单一点就是1ms画出一个点，然后依次下去
 			//}
 		}
+
+		private void updateECG() {
+			if (Command.mShowData.isEmpty() == false) {
+                int data=Command.mShowData.poll();
+                float cy = centerY - (float) (finalecgdata(data)/2);
+                mSaveData.add(data);
+                //实时获取的temp数值，因为对于画布来说
+                bx = cx;
+                cx+=2;                               //cx 自增， 就类似于随时间轴的图形
+                //最左上角是原点，所以我要到y值，需要从画布中间开始计数
+                Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+                //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+                linePaint.setColor(Color.GREEN);//设置波形颜色
+                canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+                holder.unlockCanvasAndPost(canvas);  //解锁画布
+                by = cy;
+                if (cx >= canvaswidth) {
+                    cx = lStartX;
+                    DrawBack();
+                    //画满之后，清除原来的图像，从新开始
+                }
+            }
+			//paintflag=0;
+		}
+
 		private int finalecgdata(int arg){
 			int ecgdata=arg;
 			if (arg==Command.ESCAPE_CHAR){

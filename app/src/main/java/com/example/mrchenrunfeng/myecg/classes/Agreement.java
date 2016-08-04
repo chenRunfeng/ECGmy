@@ -7,9 +7,8 @@ public interface Agreement {
     void AConnect();
     void AStartTest();
     void AStopTest();
+    void AStartSample();
     void ARecieveData();
-//    boolean AStartSample();
-//    boolean AStopSample();
-//    boolean ADisconnet();
+    void AStopSample();
    // void BlueConnect();
 }

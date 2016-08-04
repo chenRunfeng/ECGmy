@@ -10,7 +10,6 @@ import com.example.mrchenrunfeng.myecg.classes.BluetoothLink;
 import com.example.mrchenrunfeng.myecg.classes.Command;
 import com.example.mrchenrunfeng.myecg.classes.IBluetoothLink;
 import com.example.mrchenrunfeng.myecg.view.IMainView;
-import com.example.mrchenrunfeng.myecg.view.IECGSurfaceView;
 
 /**
  * Created by Mr.Chen RunFENG on 2016/7/29.
@@ -96,7 +95,18 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            agreement.AStopTest();
                             agreement.ARecieveData();
+                            mainView.Connected();
+                        }
+                    });
+                    break;
+                case Command.NOTSAMPLEING:
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainView.Stopsampled();
+                            //agreement.AStartTest();
                         }
                     });
                     break;
@@ -133,5 +143,16 @@ public class MainPresenterImpl implements IMainPresenter {
 
     public void Test() {
         agreement.AStartTest();
+    }
+
+    @Override
+    public void StartSample() {
+        agreement.AStartSample();
+    }
+
+    @Override
+    public void StopSample() {
+        mainView.StopSampling();
+        agreement.AStopSample();
     }
 }
