@@ -10,4 +10,5 @@ public interface IMainPresenter {
     void Test();
     void StartSample();
     void StopSample();
+    void StopConnect();
 }

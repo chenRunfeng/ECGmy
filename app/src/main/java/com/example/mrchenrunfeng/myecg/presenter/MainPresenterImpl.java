@@ -110,6 +110,13 @@ public class MainPresenterImpl implements IMainPresenter {
                         }
                     });
                     break;
+                case Command.SOCKET_STOPCONNECTE:
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            iBluetoothLink.disconnect();
+                        }
+                    });
                 default:
                     break;
             }
@@ -142,7 +149,7 @@ public class MainPresenterImpl implements IMainPresenter {
     }
 
     public void Test() {
-        agreement.AStartTest();
+        //agreement.AStartTest();
     }
 
     @Override
@@ -154,5 +161,10 @@ public class MainPresenterImpl implements IMainPresenter {
     public void StopSample() {
         mainView.StopSampling();
         agreement.AStopSample();
+    }
+
+    @Override
+    public void StopConnect() {
+       agreement.AStopConnect();
     }
 }

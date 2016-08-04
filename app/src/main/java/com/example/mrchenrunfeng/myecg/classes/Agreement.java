@@ -10,5 +10,6 @@ public interface Agreement {
     void AStartSample();
     void ARecieveData();
     void AStopSample();
+    void AStopConnect();
    // void BlueConnect();
 }

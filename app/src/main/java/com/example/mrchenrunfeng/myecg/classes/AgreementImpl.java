@@ -82,12 +82,12 @@ public class AgreementImpl implements Agreement {
     }
     @Override
     public void AStartTest(){
-        handlerThread=new HandlerThread("Test handler");
-        handlerThread.start();
-        threadsHandler=new ThreadsHandler(handlerThread.getLooper());
-        testThread=new TestThread(threadsHandler,ecgServerThread,bluetoothLink);
-        //new Thread(new TestThread(threadsHandler,ecgServerThread,bluetoothLink)).start();
-        cachedThreadPool.execute(testThread);
+//        handlerThread=new HandlerThread("Test handler");
+//        handlerThread.start();
+//        threadsHandler=new ThreadsHandler(handlerThread.getLooper());
+//        testThread=new TestThread(threadsHandler,ecgServerThread,bluetoothLink);
+//        //new Thread(new TestThread(threadsHandler,ecgServerThread,bluetoothLink)).start();
+//        cachedThreadPool.execute(testThread);
     }
     @Override
     public void AStopTest() {
@@ -104,15 +104,22 @@ public class AgreementImpl implements Agreement {
 
     @Override
     public void ARecieveData() {
-        singleThreadExecutor.execute(ecgServerThread.GetThread());
+       // singleThreadExecutor.execute(ecgServerThread);
     }
 
     @Override
     public void AStopSample() {
         if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStopSample,0,0)==Command.SOCKET_ISNOMALC){
             //停止接收数据线程
-           // ecgServerThread.setDone();
+           //ecgServerThread.setDone();
             //开启接收命令线程
+            singleThreadExecutor.execute(ecgServerThread);
+        }
+    }
+
+    @Override
+    public void AStopConnect() {
+        if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStopConnect,0,0)==Command.SOCKET_ISNOMALC){
             singleThreadExecutor.execute(ecgServerThread);
         }
     }

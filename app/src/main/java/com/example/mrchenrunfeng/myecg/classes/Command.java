@@ -43,6 +43,7 @@ public class Command {
     public final static int NOTSAMPLEING = 26;
     public final static int SOCKET_NOTNOMALC = 27;
     public final static int SOCKET_CLOSED = 28;
+    public final static int SOCKET_STOPCONNECTE=29;
     //处理心电数据命令
     public final static int MESSAGE_ECG = 31;
     //临时储存心电数据队列

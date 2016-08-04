@@ -21,8 +21,8 @@ public class ECGServerThread extends Thread implements ECGServer {
     protected BluetoothLink mBluetoothLink;
     protected static OutputStream mmOutputStream;
     protected static InputStream mmInputStream;
-    protected int mCommand;
-    protected int mArg;//记录命令帧的返回参数。
+//    protected int mcommand;
+//    protected int marg;//记录命令帧的返回参数。
     //int mData;
     protected Handler mHandler;
 
@@ -45,45 +45,45 @@ public class ECGServerThread extends Thread implements ECGServer {
         // }
     }
 
-    public synchronized void dataStream() {
-        int mdata;
-        done = false;
-        while (true) {
-            try {
-                if (done==true) {
-                    Log.v("DONE:",""+done);
-                    break;
-                }
-                mdata = mmInputStream.read();
-                if (mdata == Command.intFirstFrame) {
-                    Log.v("Firstframe:", "" + mdata);
-                    mdata = mmInputStream.read();
-                    Log.v("INTDATA:", "" + mdata);
-                    if (mdata == Command.intData) {
-                        int len;
-                        len = mmInputStream.read();
-                        byte[] buffer=new byte[len];
-                        mmInputStream.read(buffer);
-                        //while ()
-                        for (int i=0;i<buffer.length;i+=2){
-                            byte hght = buffer[i];
-                            byte low = buffer[i+1];
-                            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
-                            Command.mShowData.offer((int) byteToShort(low, hght));
-                        }
-                    }
-                } /*else {
-                    break;
-                }*/
-            } catch (IOException e) {
-                // TODO �Զ���ɵ� catch ��
-                Log.v(e.getMessage(), "   read data fail  ");
-                e.printStackTrace();
-                break;
-            }
-            // }
-        }
-    }
+//    public synchronized void dataStream() {
+//        int mdata;
+//        done = false;
+//        while (true) {
+//            try {
+//                if (done==true) {
+//                    Log.v("DONE:",""+done);
+//                    break;
+//                }
+//                mdata = mmInputStream.read();
+//                if (mdata == Command.intFirstFrame) {
+//                    Log.v("Firstframe:", "" + mdata);
+//                    mdata = mmInputStream.read();
+//                    Log.v("INTDATA:", "" + mdata);
+//                    if (mdata == Command.intData) {
+//                        int len;
+//                        len = mmInputStream.read();
+//                        byte[] buffer=new byte[len];
+//                        mmInputStream.read(buffer);
+//                        //while ()
+//                        for (int i=0;i<buffer.length;i+=2){
+//                            byte hght = buffer[i];
+//                            byte low = buffer[i+1];
+//                            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
+//                            Command.mShowData.offer((int) byteToShort(low, hght));
+//                        }
+//                    }
+//                } /*else {
+//                    break;
+//                }*/
+//            } catch (IOException e) {
+//                // TODO �Զ���ɵ� catch ��
+//                Log.v(e.getMessage(), "   read data fail  ");
+//                e.printStackTrace();
+//                break;
+//            }
+//            // }
+//        }
+//    }
 
     public boolean getStream() {
         // while (mBluetoothLink.getSocket()!=null) {
@@ -121,23 +121,50 @@ public class ECGServerThread extends Thread implements ECGServer {
 
     public synchronized void handleStream() {
         int mdata;
-        try {
-            if ((mmInputStream.read()) == Command.intFirstFrame) {
-                mdata = mmInputStream.read();
-                if (mdata == Command.intCType) {
-                    mCommand = mmInputStream.read();
-                    mArg = mmInputStream.read();
-                    Log.v("Command and Arg:", "" + mCommand + "" + mArg);
-                    mHandler.obtainMessage(SetState(mCommand), mArg).sendToTarget();
+        while (true) {
+            try {
+                mdata=mmInputStream.read();
+                if (mdata == Command.intFirstFrame) {
+                    mdata = mmInputStream.read();
+                    if (mdata == Command.intCType) {
+                        commandhandle();
+                        continue;
+                    }
+                    if (mdata == Command.intData) {
+                        datahandle();
+                        continue;
+                    }
                 }
+                Log.v("mdata:",""+mdata);
+                break;
+            } catch (IOException e) {
+                // TODO �Զ���ɵ� catch ��
+                Log.v(e.getMessage(), "   read data fail  ");
+                e.printStackTrace();
             }
-            return;
-        } catch (IOException e) {
-            // TODO �Զ���ɵ� catch ��
-            Log.v(e.getMessage(), "   read data fail  ");
-            e.printStackTrace();
+        }// }
+    }
+
+    private void datahandle() throws IOException {
+        int len;
+        len = mmInputStream.read();
+        byte[] buffer=new byte[len];
+        mmInputStream.read(buffer);
+        //while ()
+        for (int i=0;i<buffer.length;i+=2){
+            byte hght = buffer[i];
+            byte low = buffer[i+1];
+            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
+            Command.mShowData.offer((int) byteToShort(low, hght));
         }
-        // }
+    }
+
+    private void commandhandle() throws IOException {
+        int mcommand,marg;
+        mcommand = mmInputStream.read();
+        marg = mmInputStream.read();
+        Log.v("Command and Arg:", "" + mcommand + "" + marg);
+        mHandler.obtainMessage(SetState(mcommand), marg).sendToTarget();
     }
 
     //设置状态
@@ -147,10 +174,12 @@ public class ECGServerThread extends Thread implements ECGServer {
                 return Command.SOCKET_ISNOMALC;
             case Command.intStartConnectOrder:
                 return Command.SOCKET_COMUNICATIONCONNECTED;
-            case Command.intStopConnect:
+            case Command.intStopSample:
                 return Command.NOTSAMPLEING;
             case Command.intStartSample:
                 return Command.SAMPLING;
+            case Command.intStopConnect:
+                return Command.SOCKET_STOPCONNECTE;
             default:
                 return Command.SOCKET_NOTCOMUNICATIONCONNECTED;
         }
@@ -165,9 +194,9 @@ public class ECGServerThread extends Thread implements ECGServer {
         return result;
     }
 
-    public Runnable GetThread() {
-        return new recieveThread();
-    }
+//    public Runnable GetThread() {
+//        return new recieveThread();
+//    }
 
     public void setDone() {
         done = true;
@@ -190,9 +219,9 @@ public class ECGServerThread extends Thread implements ECGServer {
         return s;
     }
 
-    private class recieveThread implements Runnable {
-        public void run() {
-            dataStream();
-        }
-    }
+//    private class recieveThread implements Runnable {
+//        public void run() {
+//            dataStream();
+//        }
+//    }
 }

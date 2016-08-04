@@ -60,6 +60,9 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
             case R.id.imbtnexit:
                 quit();
                 break;
+            case R.id.imbtnleading:
+                mainPresenter.StopConnect();
+                break;
             default:
                 break;
         }
