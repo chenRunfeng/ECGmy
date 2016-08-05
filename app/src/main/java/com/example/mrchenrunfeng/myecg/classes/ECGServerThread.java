@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,6 +22,7 @@ public class ECGServerThread extends Thread implements ECGServer {
     protected BluetoothLink mBluetoothLink;
     protected static OutputStream mmOutputStream;
     protected static InputStream mmInputStream;
+    private BufferedInputStream bufferedInputStream;
 //    protected int mcommand;
 //    protected int marg;//记录命令帧的返回参数。
     //int mData;
@@ -123,12 +125,13 @@ public class ECGServerThread extends Thread implements ECGServer {
         int mdata;
         while (true) {
             try {
+                Log.v("handleStreamThreadid:",""+Thread.currentThread().getId());
                 mdata=mmInputStream.read();
                 if (mdata == Command.intFirstFrame) {
                     mdata = mmInputStream.read();
                     if (mdata == Command.intCType) {
                         commandhandle();
-                        continue;
+                        break;
                     }
                     if (mdata == Command.intData) {
                         datahandle();
@@ -145,12 +148,13 @@ public class ECGServerThread extends Thread implements ECGServer {
         }// }
     }
 
-    private void datahandle() throws IOException {
+    private synchronized void datahandle() throws IOException {
         int len;
         len = mmInputStream.read();
         byte[] buffer=new byte[len];
         mmInputStream.read(buffer);
         //while ()
+        Log.v("dataThreadid:",""+Thread.currentThread().getId());
         for (int i=0;i<buffer.length;i+=2){
             byte hght = buffer[i];
             byte low = buffer[i+1];
@@ -159,10 +163,13 @@ public class ECGServerThread extends Thread implements ECGServer {
         }
     }
 
-    private void commandhandle() throws IOException {
+    private synchronized void commandhandle() throws IOException {
         int mcommand,marg;
+//        byte[] bs=new byte[5];
+//        marg=mmInputStream.read(bs);
         mcommand = mmInputStream.read();
         marg = mmInputStream.read();
+        Log.v("commandThreadid:",""+Thread.currentThread().getId());
         Log.v("Command and Arg:", "" + mcommand + "" + marg);
         mHandler.obtainMessage(SetState(mcommand), marg).sendToTarget();
     }
