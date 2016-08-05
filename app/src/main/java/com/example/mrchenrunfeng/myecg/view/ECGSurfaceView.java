@@ -318,12 +318,14 @@ public class ECGSurfaceView extends SurfaceView implements
 		private int finalecgdata(int arg){
 			int ecgdata=arg;
 			if (arg==Command.ESCAPE_CHAR){
-			  int next=Command.mShowData.poll();
-				if (next==Command.SPECIAL_CHAR){
-					ecgdata= Command.ESCAPE_CHAR;
-				}
-				else if (next==Command.SPECIAL_CHAR1){
-					ecgdata= Command.intFirstFrame;
+				if (mSaveData.isEmpty()==false) {
+					int next=Command.mShowData.poll();
+					if (next==Command.SPECIAL_CHAR){
+                        ecgdata= Command.ESCAPE_CHAR;
+                    }
+                    else if (next==Command.SPECIAL_CHAR1){
+                        ecgdata= Command.intFirstFrame;
+                    }
 				}
 			}
 			return ecgdata;

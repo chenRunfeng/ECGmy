@@ -114,9 +114,11 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            mainView.StopConnecte();
                             iBluetoothLink.disconnect();
                         }
                     });
+                    break;
                 default:
                     break;
             }

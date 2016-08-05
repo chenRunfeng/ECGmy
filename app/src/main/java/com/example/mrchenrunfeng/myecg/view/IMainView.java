@@ -13,6 +13,7 @@ public interface IMainView {
   void LostConnect();
   void StopSampling();
   void Stopsampled();
+  void StopConnecte();
 //    void Play();
 //    void Close();
 //    void Save();

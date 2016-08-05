@@ -42,6 +42,7 @@ public class ECGServerThread extends Thread implements ECGServer {
     @Override
     public void run() {
 //        while (!done) {
+//
         handleStream();
         //dataStream();
         // }
@@ -94,6 +95,7 @@ public class ECGServerThread extends Thread implements ECGServer {
         try {
             mmInputStream = mSocket.getInputStream();
             mmOutputStream = mSocket.getOutputStream();
+            bufferedInputStream=new BufferedInputStream(mSocket.getInputStream());
             return true;
         } catch (IOException e) {
             // TODO �Զ���ɵ� catch ��
@@ -120,15 +122,30 @@ public class ECGServerThread extends Thread implements ECGServer {
             return Command.SOCKET_CLOSED;
         }
     }
-
+   public synchronized void Read(){
+       while (true){
+           byte[] bufferds=new byte[1024];
+           try {
+              int bytes= bufferedInputStream.read(bufferds);
+               Log.v("len:",""+bytes);
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+       }
+   }
     public synchronized void handleStream() {
         int mdata;
         while (true) {
             try {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Log.v("handleStreamThreadid:",""+Thread.currentThread().getId());
-                mdata=mmInputStream.read();
+                mdata=bufferedInputStream.read();
                 if (mdata == Command.intFirstFrame) {
-                    mdata = mmInputStream.read();
+                    mdata = bufferedInputStream.read();
                     if (mdata == Command.intCType) {
                         commandhandle();
                         break;
@@ -150,9 +167,9 @@ public class ECGServerThread extends Thread implements ECGServer {
 
     private synchronized void datahandle() throws IOException {
         int len;
-        len = mmInputStream.read();
+        len = bufferedInputStream.read();
         byte[] buffer=new byte[len];
-        mmInputStream.read(buffer);
+        bufferedInputStream.read(buffer);
         //while ()
         Log.v("dataThreadid:",""+Thread.currentThread().getId());
         for (int i=0;i<buffer.length;i+=2){
@@ -166,9 +183,9 @@ public class ECGServerThread extends Thread implements ECGServer {
     private synchronized void commandhandle() throws IOException {
         int mcommand,marg;
 //        byte[] bs=new byte[5];
-//        marg=mmInputStream.read(bs);
-        mcommand = mmInputStream.read();
-        marg = mmInputStream.read();
+//        marg=bufferedInputStream.read(bs);
+        mcommand = bufferedInputStream.read();
+        marg = bufferedInputStream.read();
         Log.v("commandThreadid:",""+Thread.currentThread().getId());
         Log.v("Command and Arg:", "" + mcommand + "" + marg);
         mHandler.obtainMessage(SetState(mcommand), marg).sendToTarget();

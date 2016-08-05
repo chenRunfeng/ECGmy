@@ -105,6 +105,7 @@ public class AgreementImpl implements Agreement {
     @Override
     public void ARecieveData() {
         singleThreadExecutor.execute(ecgServerThread);
+       // ecgServerThread.Read();
     }
 
     @Override

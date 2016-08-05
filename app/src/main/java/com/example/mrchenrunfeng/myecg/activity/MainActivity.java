@@ -81,7 +81,6 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         setContentView(R.layout.activity_main);
         blueadapter= BluetoothAdapter.getDefaultAdapter();
         pd=new ProgressDialog(this);
-        pd.setMessage("正在连接设备.......");
         nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         notification = new Notification();
         notification.ledARGB = 0xFFFFFF;  //这里是颜色，我们可以尝试改变，理论上0xFF0000是红色，0x00FF00是绿色
@@ -103,6 +102,8 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         imbtnexit=(ImageButton)findViewById(R.id.imbtnexit);
         imbtnexit.setOnClickListener(this);
         imbtnleading=(ImageButton)findViewById(R.id.imbtnleading);
+        //imbtnleading=(ImageButton)findViewById(R.id.imbtnleading);
+        imbtnleading.setOnClickListener(this);
         IntentFilter filter = new IntentFilter(BluetoothActivity.action);
         registerReceiver(broadcastReceiver, filter);
     }
@@ -140,6 +141,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     }
     @Override
     public void Connecting(){
+        pd.setMessage("正在连接设备.......");
         pd.show();
     }
     @Override
@@ -158,7 +160,8 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
         pd.setMessage("正在重新建立连接......");
         //Toast.makeText(getApplication(),"正在重新建立连接！！",Toast.LENGTH_SHORT);
-        Connecting();
+        //Connecting();
+        pd.show();
     }
 
     @Override
@@ -175,6 +178,12 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
     public void Stopsampled() {
         pd.dismiss();
+    }
+
+    @Override
+    public void StopConnecte() {
+        imbtnbluetooth.setAlpha((float)1);
+        imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
     }
 
     protected void quit(){
