@@ -14,6 +14,7 @@ public interface IMainView {
   void StopSampling();
   void Stopsampled();
   void StopConnecte();
+  void TimeOut();
 //    void Play();
 //    void Close();
 //    void Save();

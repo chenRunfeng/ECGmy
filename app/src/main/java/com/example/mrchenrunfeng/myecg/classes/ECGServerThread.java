@@ -156,6 +156,8 @@ public class ECGServerThread extends Thread implements ECGServer {
                     }
                 }
                 Log.v("mdata:",""+mdata);
+                int i= bufferedInputStream.available();
+                Log.v("idata:",""+i);
                 break;
             } catch (IOException e) {
                 // TODO �Զ���ɵ� catch ��
@@ -168,16 +170,28 @@ public class ECGServerThread extends Thread implements ECGServer {
     private synchronized void datahandle() throws IOException {
         int len;
         len = bufferedInputStream.read();
-        byte[] buffer=new byte[len];
-        bufferedInputStream.read(buffer);
+        //byte[] buffer=new byte[len];
+        //bufferedInputStream.read(buffer);
+        for(int i=0;i<len;i+=2){
+            try {
+                Thread.sleep(2);
+                byte hght =(byte) bufferedInputStream.read();
+                Thread.sleep(2);
+                byte low = (byte) bufferedInputStream.read();
+                Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
+                Command.mShowData.offer((int) byteToShort(low, hght));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         //while ()
         Log.v("dataThreadid:",""+Thread.currentThread().getId());
-        for (int i=0;i<buffer.length;i+=2){
-            byte hght = buffer[i];
-            byte low = buffer[i+1];
-            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
-            Command.mShowData.offer((int) byteToShort(low, hght));
-        }
+//        for (int i=0;i<buffer.length;i+=2){
+//            byte hght = buffer[i];
+//            byte low = buffer[i+1];
+//            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
+//            Command.mShowData.offer((int) byteToShort(low, hght));
+//        }
     }
 
     private synchronized void commandhandle() throws IOException {

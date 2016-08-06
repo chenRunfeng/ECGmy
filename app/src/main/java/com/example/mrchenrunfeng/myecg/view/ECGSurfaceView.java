@@ -175,93 +175,6 @@ public class ECGSurfaceView extends SurfaceView implements
 			//timer.
 		}
 	}
-
-	/**
-	 * 保存成二进制文件
-	 * //@param fileName：文本框输入的文件名
-	 */
-//	public void saveFile1(String fileName){
-//		System.out.println("");
-//
-//		// 先判断是否有SDCard
-//		if ((Environment.getExternalStorageState() != null) && (fileName != null)) {
-//
-//			if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
-//				// 创建一个文件夹对象，赋值为外部存储器的目录
-//				File sdcardDir =Environment.getExternalStorageDirectory();
-//				//得到一个路径，内容是sdcard的文件夹路径和名字
-//				String path = sdcardDir.getPath()+"/EcgData";
-//				File path1 = new File(path);
-//				if (!path1.exists()) {
-//					//若不存在，创建目录，可以在应用启动的时候创建
-//					path1.mkdirs();
-//				}
-//
-//				File file = new File(path1, fileName+".txt");
-//				FileOutputStream fOut = null;
-//				BufferedOutputStream bos = null;
-//				try {
-//					fOut = new FileOutputStream(file);
-//					bos = new BufferedOutputStream(fOut);
-//
-//				} catch (FileNotFoundException e) {
-//					// TODO 自动生成的 catch 块
-//					e.printStackTrace();
-//
-//				}
-//				DataOutputStream dos = new DataOutputStream(bos);
-//
-//				System.out.println(mShowData.isEmpty());
-//
-//				if (!mSaveData.isEmpty()) {
-//					//Toast.makeText(this, "保存成二进制文件", Toast.LENGTH_SHORT).show();
-//					try {
-//
-//						for (int i = 0; i < 4000; i++) {
-//							int Data = mSaveData.poll();
-//							try {
-//								dos.writeShort(Data);
-//
-//							} catch (Exception e) {
-//								// TODO: handle exception
-//								System.out.println("save here");
-//
-//							}
-//
-//						}
-//
-//					}
-//					finally{
-//						try {
-//
-//							dos.close();
-//							//Toast.makeText(MainActivity.this, path + "/"+fileName, Toast.LENGTH_LONG).show();
-//
-//						} catch (IOException e) {
-//							// TODO 自动生成的 catch 块
-//							e.printStackTrace();
-//
-//						}
-//					}
-//
-//
-//				}
-//
-//
-//			}
-//
-//		}
-//
-//	}
-	//@Override
-//	public boolean onTouchEvent(MotionEvent event) {
-//		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//			xs.add(event.getX());
-//			ys.add(event.getY());
-//		}
-//		return true;
-//	}
-	//绘图线程，实时获取temp 数值即是y值
 	private class DrawThread extends Thread {
         int cx=lStartX;
 		int bx;
@@ -335,7 +248,8 @@ public class ECGSurfaceView extends SurfaceView implements
 	 * 保存成二进制文件
 	 *
 	 */
-	public void saveFile1(String fileName){
+	@Override
+	public void SaveECG(String fileName){
 		System.out.println("开始保存："+mSaveData.size());
 
 		// 先判断是否有SDCard
@@ -393,8 +307,7 @@ public class ECGSurfaceView extends SurfaceView implements
 //							Toast.makeText(
 //									Application., path + "/"+fileName, Toast.LENGTH_LONG).show();
 							Log.v("保存 成功！",""+path + "/"+fileName);
-							Toast.makeText(getContext(), "保存成文件", Toast.LENGTH_SHORT).show();
-
+							Toast.makeText(getContext(), "已经保存到："+""+path + "/"+fileName, Toast.LENGTH_LONG).show();
 						} catch (IOException e) {
 							// TODO 自动生成的 catch 块
 							e.printStackTrace();

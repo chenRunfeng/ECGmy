@@ -33,6 +33,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            agreement.AStopTime();
                             Connected();
                         }
                     });
@@ -44,6 +45,7 @@ public class MainPresenterImpl implements IMainPresenter {
                         public void run() {
                             mainView.Connected();
                             Test();
+                            agreement.AStopTime();
                         }
                     });
                     break;
@@ -51,6 +53,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            agreement.AStartTime();
                             Bluetoothsocketconnet();
                         }
                     });
@@ -106,6 +109,7 @@ public class MainPresenterImpl implements IMainPresenter {
                         @Override
                         public void run() {
                             mainView.Stopsampled();
+                            agreement.AStopTime();
                             //agreement.AStartTest();
                         }
                     });
@@ -119,6 +123,14 @@ public class MainPresenterImpl implements IMainPresenter {
                         }
                     });
                     break;
+                case Command.TIME_OUT:
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                           mainView.TimeOut();
+                            iBluetoothLink.disconnect();
+                        }
+                    });
                 default:
                     break;
             }
@@ -142,10 +154,12 @@ public class MainPresenterImpl implements IMainPresenter {
     @Override
     public void Connected() {
         agreement.AConnect();
+        agreement.AStartTime();
     }
 
     @Override
     public void Bluetoothsocketconnet() {
+        agreement.AStartTime();
         mainView.Connecting();
         iBluetoothLink.connect();
     }

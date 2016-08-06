@@ -9,6 +9,6 @@ public interface IECGSurfaceView {
     void DrawBack();
     void StartDraw();
     void StopDraw();
-//    void SaveECG(String filename);
+    void SaveECG(String filename);
 //    void ReadECG(String filneame);
 }

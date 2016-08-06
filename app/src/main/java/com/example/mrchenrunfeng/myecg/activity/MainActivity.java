@@ -15,18 +15,21 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.mrchenrunfeng.myecg.R;
+import com.example.mrchenrunfeng.myecg.classes.Command;
 import com.example.mrchenrunfeng.myecg.presenter.IMainPresenter;
 import com.example.mrchenrunfeng.myecg.presenter.MainPresenterImpl;
 import com.example.mrchenrunfeng.myecg.view.ECGSurfaceView;
 import com.example.mrchenrunfeng.myecg.view.IECGSurfaceView;
 import com.example.mrchenrunfeng.myecg.view.IMainView;
+import com.example.mrchenrunfeng.myecg.view.SaveDialogFragmemt;
 
-public class MainActivity extends Activity implements IMainView,View.OnClickListener {
+public class MainActivity extends Activity implements IMainView,View.OnClickListener,SaveDialogFragmemt.SaveInputListener {
     NotificationManager nm;
     Notification notification;
     final int ID_LED=19871103;
     private  IMainPresenter mainPresenter;
     private ProgressDialog pd;
+    IECGSurfaceView iecgSurfaceView;
     //启动blueactivity.
     private Intent bluetooth;
     //启动扫描页面蓝牙请求连接代号
@@ -39,7 +42,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
-        IECGSurfaceView iecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
+        iecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
         switch (v.getId()) {
             case R.id.imbtnplay:
                 if (btnstatus) {
@@ -121,7 +124,20 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
              mainPresenter=MainPresenterImpl.getUniqueInstance(this,address);
             mainPresenter.Bluetoothsocketconnet();
         }
-    };
+    }
+    //保存数据
+    public void showLoginDialog(View view) {
+        SaveDialogFragmemt dialog = new SaveDialogFragmemt();
+        dialog.show(getFragmentManager(), "保存数据");
+
+    }
+    @Override
+    public void onSaveInputComplete(String filename, int cmd)
+    {
+        if (cmd== Command.intSaveData){
+            iecgSurfaceView.SaveECG(filename);
+        }
+    }
     @Override
     public void OpenBluetoothView(){
         bluetooth = new Intent();
@@ -184,6 +200,12 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     public void StopConnecte() {
         imbtnbluetooth.setAlpha((float)1);
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
+    }
+
+    @Override
+    public void TimeOut() {
+        pd.dismiss();
+        Toast.makeText(getApplicationContext(),"连接超时，请重新连接！！",Toast.LENGTH_LONG).show();
     }
 
     protected void quit(){

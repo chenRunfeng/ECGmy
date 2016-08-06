@@ -21,6 +21,7 @@ public class AgreementImpl implements Agreement {
     private HandlerThread handlerThread;
     private ThreadsHandler threadsHandler;
     private TestThread testThread;
+    private TimerThread timerThread;
     /**
      * Created by Mr.Chen RunFENG on 2016/7/31.
      */
@@ -113,6 +114,7 @@ public class AgreementImpl implements Agreement {
         if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStopSample,0,0)==Command.SOCKET_ISNOMALC){
             //停止接收数据线程
            //ecgServerThread.setDone();
+            AStartTime();
             //开启接收命令线程
             singleThreadExecutor.execute(ecgServerThread);
         }
@@ -123,5 +125,16 @@ public class AgreementImpl implements Agreement {
         if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStopConnect,0,0)==Command.SOCKET_ISNOMALC){
             singleThreadExecutor.execute(ecgServerThread);
         }
+    }
+
+    @Override
+    public void AStartTime() {
+        timerThread=new TimerThread(handler);
+        cachedThreadPool.execute(timerThread);
+    }
+
+    @Override
+    public void AStopTime() {
+        timerThread.SetDone();
     }
 }

@@ -11,5 +11,7 @@ public interface Agreement {
     void ARecieveData();
     void AStopSample();
     void AStopConnect();
+    void AStartTime();
+    void AStopTime();
    // void BlueConnect();
 }
