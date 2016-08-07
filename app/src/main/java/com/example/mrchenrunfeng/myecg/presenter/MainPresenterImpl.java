@@ -20,6 +20,7 @@ public class MainPresenterImpl implements IMainPresenter {
     private IMainView mainView;
     private IBluetoothLink iBluetoothLink;
     private static int mstate = 0;
+    private static int timernumber=0;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -33,7 +34,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            agreement.AStopTime();
+                            //agreement.AStopTime();
                             Connected();
                         }
                     });
@@ -43,6 +44,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            timernumberreturn0();
                             mainView.Connected();
                             Test();
                             agreement.AStopTime();
@@ -53,7 +55,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            agreement.AStartTime();
+                            //agreement.AStartTime();
                             Bluetoothsocketconnet();
                         }
                     });
@@ -127,6 +129,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            timernumberreturn0();
                            mainView.TimeOut();
                             iBluetoothLink.disconnect();
                         }
@@ -136,6 +139,12 @@ public class MainPresenterImpl implements IMainPresenter {
             }
         }
     };
+
+    private void timernumberreturn0() {
+        if (timernumber!=0) {
+            timernumber=0;
+        }
+    }
 
     private MainPresenterImpl(IMainView iMainView, String adress) {
         this.mainView = iMainView;
@@ -154,12 +163,15 @@ public class MainPresenterImpl implements IMainPresenter {
     @Override
     public void Connected() {
         agreement.AConnect();
-        agreement.AStartTime();
+        //agreement.AStartTime();
     }
 
     @Override
     public void Bluetoothsocketconnet() {
-        agreement.AStartTime();
+        if (timernumber<1) {
+            timernumber++;
+            agreement.AStartTime();
+        }
         mainView.Connecting();
         iBluetoothLink.connect();
     }
