@@ -212,7 +212,7 @@ public class ECGServerThread extends Thread implements ECGServer {
             }
         }
         else {
-            bufferedInputStream.skip(bufferedInputStream.available());
+            bufferedInputStream.skip(bufferedInputStream.available()-4);
             return;
         }
     }

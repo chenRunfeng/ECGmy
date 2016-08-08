@@ -171,8 +171,8 @@ public class MainPresenterImpl implements IMainPresenter {
         if (timernumber<1) {
             timernumber++;
             agreement.AStartTime();
+            mainView.Connecting();
         }
-        mainView.Connecting();
         iBluetoothLink.connect();
     }
 

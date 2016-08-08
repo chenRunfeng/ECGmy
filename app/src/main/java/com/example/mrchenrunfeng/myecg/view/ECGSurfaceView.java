@@ -39,7 +39,7 @@ public class ECGSurfaceView extends SurfaceView implements
     int lStartX;
     int centerY;
     int paintflag = 1;//绘图是否暂停标志位，0为暂停
-    final int ECGTIMES=5;
+    final int ECGTIMES=2;
     final int ECG_1MV_DATA=324;//1mv心电数据参考值
     float flmvwidth;
     TimerTask task = null;
@@ -101,7 +101,7 @@ public class ECGSurfaceView extends SurfaceView implements
             linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
             mCanvas.drawPaint(linePaint);
             linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-            //mCanvas.drawColor(Color.BLACK);
+            mCanvas.drawColor(Color.TRANSPARENT);
             canvaswidth = mCanvas.getWidth();
             canvasheigth = mCanvas.getHeight();
             int height = canvasheigth;
@@ -233,7 +233,10 @@ public class ECGSurfaceView extends SurfaceView implements
                 //最左上角是原点，所以我要到y值，需要从画布中间开始计数
                 Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
                 //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-                canvas.drawColor(Color.BLACK);
+//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+//                canvas.drawPaint(linePaint);
+//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+                canvas.drawColor(Color.TRANSPARENT);
                 linePaint.setColor(Color.GREEN);//设置波形颜色
                 canvas.drawLine(bx, by, cx, cy, linePaint); //画线
                 holder.unlockCanvasAndPost(canvas);  //解锁画布
