@@ -54,6 +54,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                     mainPresenter.StopSample();
                     imbtnplay.setBackgroundResource(R.drawable.play);
                     iecgSurfaceView.StopDraw();
+                    showLoginDialog();
                     btnstatus = true;
                 }
                 break;
@@ -126,7 +127,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         }
     }
     //保存数据
-    public void showLoginDialog(View view) {
+    public void showLoginDialog() {
         SaveDialogFragmemt dialog = new SaveDialogFragmemt();
         dialog.show(getFragmentManager(), "保存数据");
 

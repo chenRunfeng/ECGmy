@@ -28,6 +28,7 @@ public class SaveDialogFragmemt extends DialogFragment {
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.save, null);
+        editText=(EditText)view.findViewById(R.id.filename_edit);
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         builder.setView(view)

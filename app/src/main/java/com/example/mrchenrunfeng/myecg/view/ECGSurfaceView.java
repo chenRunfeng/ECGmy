@@ -39,9 +39,10 @@ public class ECGSurfaceView extends SurfaceView implements
     int lStartX;
     int centerY;
     int paintflag = 1;//绘图是否暂停标志位，0为暂停
-    final int ECGTIMES=2;
-    final int ECG_1MV_DATA=324;//1mv心电数据参考值
+    final int ECGTIMES = 2;
+    final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
+    final int SAMPLE_RATE = 250;
     TimerTask task = null;
     Timer timer = new Timer();
     //控制对象
@@ -113,8 +114,8 @@ public class ECGSurfaceView extends SurfaceView implements
 //		linePaint.setAntiAlias(true);// 锯齿不显示
             lStartX = width / 38;
             centerY = height / 2;
-            float f1mv=(float) (ECG_1MV_DATA/ECGTIMES);
-            flmvwidth=(float)height/60;
+            float f1mv = (float) (ECG_1MV_DATA / ECGTIMES);
+            flmvwidth = (float) height / 60;
             //临时坐标
             int temp = lStartX;
             //中线位置
@@ -143,14 +144,14 @@ public class ECGSurfaceView extends SurfaceView implements
 //				if (i==centerY)
 //				{
             linePaint.setColor(Color.RED);
-            linePaint.setStrokeWidth(width/300);
+            linePaint.setStrokeWidth(width / 300);
             mCanvas.drawLine(lStartX, centerY, width, centerY, linePaint);
-            linePaint.setTextSize(height/32);
+            linePaint.setTextSize(height / 32);
             //linePaint.setColor(Color.CYAN);
             linePaint.setColor(Color.WHITE);
-            mCanvas.drawText("1mV", lStartX-flmvwidth*(float) 1.8, centerY-f1mv/2, linePaint);
+            mCanvas.drawText("1mV", lStartX - flmvwidth * (float) 1.8, centerY - f1mv / 2, linePaint);
             linePaint.setStrokeWidth(flmvwidth);
-            mCanvas.drawLine(lStartX,centerY+f1mv/2,lStartX,centerY-f1mv/2,linePaint);//画出参考线
+            mCanvas.drawLine(lStartX, centerY + f1mv / 2, lStartX, centerY - f1mv / 2, linePaint);//画出参考线
 //				}
 //
 //				linePaint.setStrokeWidth(1);
@@ -190,8 +191,9 @@ public class ECGSurfaceView extends SurfaceView implements
             //timer.
         }
     }
+
     private class DrawThread extends Thread {
-        float fbx=lStartX+flmvwidth/2;
+        float fbx = lStartX + flmvwidth / 2;
         int cx = (int) fbx;
         int bx;
         float by = centerY;
@@ -229,7 +231,7 @@ public class ECGSurfaceView extends SurfaceView implements
                 mSaveData.add(data);
                 //实时获取的temp数值，因为对于画布来说
                 bx = cx;
-                cx ++;                               //cx 自增， 就类似于随时间轴的图形
+                cx++;                               //cx 自增， 就类似于随时间轴的图形
                 //最左上角是原点，所以我要到y值，需要从画布中间开始计数
                 Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
                 //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
@@ -280,7 +282,7 @@ public class ECGSurfaceView extends SurfaceView implements
                 // 创建一个文件夹对象，赋值为外部存储器的目录
                 File sdcardDir = Environment.getExternalStorageDirectory();
                 //得到一个路径，内容是sdcard的文件夹路径和名字
-                String path = sdcardDir.getPath();
+                String path = sdcardDir.getPath()+"//ECGDATA//";
                 File path1 = new File(path);
                 if (!path1.exists()) {
                     //若不存在，创建目录，可以在应用启动的时候创建
@@ -305,21 +307,21 @@ public class ECGSurfaceView extends SurfaceView implements
 
                 if (!mSaveData.isEmpty()) {
                     try {
-
-                        for (int i = 0; i < mSaveData.size(); i++) {
-                            double Data = mSaveData.get(i).doubleValue();
-                            //short Data=1;
-                            try {
-                                dos.writeDouble(Data);
-
-                            } catch (Exception e) {
-                                // TODO: handle exception
-                                System.out.println("save here");
-
+                        try {
+                            dos.writeBytes("ecg singal\r\n");
+                            dos.writeBytes("sample_rate:");
+                            dos.writeInt(SAMPLE_RATE);
+                            dos.writeBytes("\r\n");
+                            for (int i = 0; i < mSaveData.size(); i++) {
+                                int Data = mSaveData.get(i);
+                                //short Data=1;
+                                dos.writeInt(Data);
                             }
+                        } catch (Exception e) {
+                            // TODO: handle exception
+                            System.out.println("save here");
 
                         }
-
                     } finally {
                         try {
 
