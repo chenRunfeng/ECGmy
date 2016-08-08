@@ -9,4 +9,5 @@ public interface IBluetoothLink {
     void connect();
     void disconnect();
     BluetoothSocket getSocket();
+    int getState();
 }

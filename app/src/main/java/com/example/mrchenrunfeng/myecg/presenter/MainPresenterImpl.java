@@ -187,8 +187,10 @@ public class MainPresenterImpl implements IMainPresenter {
 
     @Override
     public void StopSample() {
-        mainView.StopSampling();
-        agreement.AStopSample();
+        if (iBluetoothLink.getState()!=Command.SOCKET_NOTCONNCTED) {
+            mainView.StopSampling();
+            agreement.AStopSample();
+        }
     }
 
     @Override

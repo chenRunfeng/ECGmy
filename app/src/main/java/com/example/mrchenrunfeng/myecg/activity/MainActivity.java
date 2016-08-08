@@ -206,6 +206,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     public void TimeOut() {
         pd.dismiss();
         Toast.makeText(getApplicationContext(),"连接超时，请重新连接！！",Toast.LENGTH_LONG).show();
+        StopConnecte();
     }
 
     protected void quit(){

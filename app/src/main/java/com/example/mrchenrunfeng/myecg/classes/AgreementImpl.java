@@ -5,7 +5,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -114,8 +113,9 @@ public class AgreementImpl implements Agreement {
     public void AStopSample() {
         if (ecgServerThread.sendCommand(Command.intFirstFrame,Command.intStopSample,0,0)==Command.SOCKET_ISNOMALC){
             //停止接收数据线程
-           //ecgServerThread.setDone();
+           //ecgServerThread.StopRead();
             AStartTime();
+            ecgServerThread.StopRead();
             //开启接收命令线程
             singleThreadExecutor.execute(ecgServerThread);
         }

@@ -21,7 +21,6 @@ public class BluetoothLink implements IBluetoothLink {
 	private BluetoothSocket socket;
 	
 	private int mState;
-	private final int NONE=1;
 	private final int CONNECTING=2;
 	boolean hasConnected=false;
 	
@@ -30,7 +29,7 @@ public class BluetoothLink implements IBluetoothLink {
 	public BluetoothLink(Handler handler, String address){
 		this.mHandler=handler;
 		device = mAdapter.getRemoteDevice(address);
-		setState(NONE);
+		setState(Command.SOCKET_NOTCONNCTED);
 	}
 	
 	//����״̬
@@ -64,7 +63,7 @@ public class BluetoothLink implements IBluetoothLink {
 			mConnectThread.cancel();
 			mConnectThread = null;
 		}
-		setState(NONE);
+		setState(Command.SOCKET_NOTCONNCTED);
 	}
 	
 	//�����߳�

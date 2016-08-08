@@ -2,23 +2,18 @@ package com.example.mrchenrunfeng.myecg.classes;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigInteger;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Mr.Chen RunFENG on 2016/7/19.
  */
 public class ECGServerThread extends Thread implements ECGServer {
-    private  boolean done = false;
+    private  boolean isread = false;
     protected static BluetoothSocket mSocket;
     protected BluetoothLink mBluetoothLink;
     protected static OutputStream mmOutputStream;
@@ -43,8 +38,9 @@ public class ECGServerThread extends Thread implements ECGServer {
 
     @Override
     public void run() {
-//        while (!done) {
+//        while (!isread) {
 //
+        isread=false;
         handleStream();
         //dataStream();
         // }
@@ -52,11 +48,11 @@ public class ECGServerThread extends Thread implements ECGServer {
 
 //    public synchronized void dataStream() {
 //        int mdata;
-//        done = false;
+//        isread = false;
 //        while (true) {
 //            try {
-//                if (done==true) {
-//                    Log.v("DONE:",""+done);
+//                if (isread==true) {
+//                    Log.v("DONE:",""+isread);
 //                    break;
 //                }
 //                mdata = mmInputStream.read();
@@ -149,6 +145,7 @@ public class ECGServerThread extends Thread implements ECGServer {
                     e.printStackTrace();
                 }
                 Log.v("handleStreamThreadid:",""+Thread.currentThread().getId());
+                if (mSocket.isConnected()==false){break;}
 //                if(bufferedInputStream.markSupported()==true)
 //                    bufferedInputStream.mark(53);
                 mdata=bufferedInputStream.read();
@@ -206,11 +203,17 @@ public class ECGServerThread extends Thread implements ECGServer {
 //        }
         //while ()
         Log.v("dataThreadid:",""+Thread.currentThread().getId());
-        for (int i=0;i<buffer.length;i+=2){
-            byte hght = buffer[i];
-            byte low = buffer[i+1];
-            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
-            Command.mShowData.offer((int) byteToShort(low, hght));
+        if (isread ==false) {
+            for (int i = 0; i < buffer.length; i += 2) {
+                byte hght = buffer[i];
+                byte low = buffer[i + 1];
+                Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
+                Command.mShowData.offer((int) byteToShort(low, hght));
+            }
+        }
+        else {
+            bufferedInputStream.skip(bufferedInputStream.available());
+            return;
         }
     }
 
@@ -256,9 +259,10 @@ public class ECGServerThread extends Thread implements ECGServer {
 //        return new recieveThread();
 //    }
 
-    public void setDone() {
-        done = true;
+    public void StopRead() {
+        isread = true;
     }
+
 
     //    private void inputbreak(){
 //        try {

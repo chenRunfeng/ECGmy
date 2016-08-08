@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Environment;
 import android.os.Handler;
@@ -39,6 +41,7 @@ public class ECGSurfaceView extends SurfaceView implements
     int paintflag = 1;//绘图是否暂停标志位，0为暂停
     final int ECGTIMES=5;
     final int ECG_1MV_DATA=324;//1mv心电数据参考值
+    float flmvwidth;
     TimerTask task = null;
     Timer timer = new Timer();
     //控制对象
@@ -94,7 +97,11 @@ public class ECGSurfaceView extends SurfaceView implements
             //timer.cancel();
             paintflag = 0;
             mCanvas = holder.lockCanvas();
-            mCanvas.drawColor(Color.BLACK);
+//            Paint paint=new Paint();
+            linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            mCanvas.drawPaint(linePaint);
+            linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+            //mCanvas.drawColor(Color.BLACK);
             canvaswidth = mCanvas.getWidth();
             canvasheigth = mCanvas.getHeight();
             int height = canvasheigth;
@@ -107,6 +114,7 @@ public class ECGSurfaceView extends SurfaceView implements
             lStartX = width / 38;
             centerY = height / 2;
             float f1mv=(float) (ECG_1MV_DATA/ECGTIMES);
+            flmvwidth=(float)height/60;
             //临时坐标
             int temp = lStartX;
             //中线位置
@@ -134,15 +142,15 @@ public class ECGSurfaceView extends SurfaceView implements
 //			for (int i = 0; i < height; i++) {
 //				if (i==centerY)
 //				{
-//            linePaint.setColor(Color.RED);
-//            linePaint.setStrokeWidth(width/300);
-//            mCanvas.drawLine(lStartX, centerY, width, centerY, linePaint);
-//            linePaint.setTextSize(10);
-//            //linePaint.setColor(Color.CYAN);
-//            mCanvas.drawText("1MV", 20, height / 2, linePaint);
-//            linePaint.setColor(Color.GREEN);
-//            linePaint.setStrokeWidth(height/60);
-//            mCanvas.drawLine(lStartX,centerY+f1mv/2,lStartX,centerY-f1mv/2,linePaint);//画出参考线
+            linePaint.setColor(Color.RED);
+            linePaint.setStrokeWidth(width/300);
+            mCanvas.drawLine(lStartX, centerY, width, centerY, linePaint);
+            linePaint.setTextSize(height/32);
+            //linePaint.setColor(Color.CYAN);
+            linePaint.setColor(Color.WHITE);
+            mCanvas.drawText("1mV", lStartX-flmvwidth*(float) 1.8, centerY-f1mv/2, linePaint);
+            linePaint.setStrokeWidth(flmvwidth);
+            mCanvas.drawLine(lStartX,centerY+f1mv/2,lStartX,centerY-f1mv/2,linePaint);//画出参考线
 //				}
 //
 //				linePaint.setStrokeWidth(1);
@@ -182,71 +190,9 @@ public class ECGSurfaceView extends SurfaceView implements
             //timer.
         }
     }
-    private void testdraw(){
-        try {
-            //timer.cancel();
-            paintflag = 0;
-            mCanvas = holder.lockCanvas();
-            mCanvas.drawColor(Color.BLACK);
-            canvaswidth = mCanvas.getWidth();
-            canvasheigth = mCanvas.getHeight();
-            int height = canvasheigth;
-            int width = canvaswidth;
-            //画Y轴
-//		linePaint.setStyle(Paint.Style.STROKE);
-//		linePaint.setStrokeWidth((float)5.0);
-//		linePaint.setColor(Color.RED);
-//		linePaint.setAntiAlias(true);// 锯齿不显示
-            lStartX = width / 38;
-            centerY = height / 2;
-            float f1mv=(float) (ECG_1MV_DATA/ECGTIMES);
-            //临时坐标
-            int temp = lStartX;
-            //中线位置
-            int ltempy = centerY;
-            //刻度
-            double scale = 0.25;
-            //起始刻度
-            double sstart = 0.25;
-//			// 画背景格子
-//			for (int i=0;i<height;i++ )
-//			{
-//				ltempy+=15;
-//				linePaint.setStrokeWidth(1);
-//				linePaint.setColor(Color.GRAY);
-//				mCanvas.drawLine(lStartX, ltempy, width, ltempy, linePaint);
-//				linePaint.setTextSize(8);
-//				linePaint.setColor(Color.CYAN);
-//				mCanvas.drawText("-" + Double.toString(sstart), 2, ltempy, linePaint);
-//				sstart+=0.25;
-//				//lStartY += 15;
-//			}
-            //画竖线
-//			ltempy=height/2;
-//			sstart=0;
-//			for (int i = 0; i < height; i++) {
-//				if (i==centerY)
-//				{
-            linePaint.setColor(Color.RED);
-            linePaint.setStrokeWidth(width/300);
-            mCanvas.drawLine(lStartX, centerY, width, centerY, linePaint);
-            linePaint.setTextSize(10);
-            //linePaint.setColor(Color.CYAN);
-            mCanvas.drawText("1MV", 20, height / 2, linePaint);
-            linePaint.setStrokeWidth(height/60);
-            mCanvas.drawLine(lStartX,centerY+f1mv/2,lStartX,centerY-f1mv/2,linePaint);//画出参考线
-        } catch (Exception e) {
-        } finally {
-            if (mCanvas != null)
-                holder.unlockCanvasAndPost(mCanvas);
-            paintflag = 1;
-            //holder.lockCanvas(new Rect(0,0,0,0)); //锁定局部区域，其余地方不做改变
-            //holder.unlockCanvasAndPost(mCanvas);
-            //timer.
-        }
-    }
     private class DrawThread extends Thread {
-        int cx = lStartX;
+        float fbx=lStartX+flmvwidth/2;
+        int cx = (int) fbx;
         int bx;
         float by = centerY;
 
@@ -283,16 +229,17 @@ public class ECGSurfaceView extends SurfaceView implements
                 mSaveData.add(data);
                 //实时获取的temp数值，因为对于画布来说
                 bx = cx;
-                cx += 2;                               //cx 自增， 就类似于随时间轴的图形
+                cx ++;                               //cx 自增， 就类似于随时间轴的图形
                 //最左上角是原点，所以我要到y值，需要从画布中间开始计数
                 Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
                 //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+                canvas.drawColor(Color.BLACK);
                 linePaint.setColor(Color.GREEN);//设置波形颜色
                 canvas.drawLine(bx, by, cx, cy, linePaint); //画线
                 holder.unlockCanvasAndPost(canvas);  //解锁画布
                 by = cy;
                 if (cx >= canvaswidth) {
-                    cx = lStartX;
+                    cx = (int) fbx;
                     DrawBack();
                     //画满之后，清除原来的图像，从新开始
                 }
