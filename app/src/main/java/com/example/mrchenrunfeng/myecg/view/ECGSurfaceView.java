@@ -79,6 +79,7 @@ public class ECGSurfaceView extends SurfaceView implements
     }
 
     public void StartDraw() {
+        mSaveData.clear();
         drawThread = new DrawThread();
         drawThread.start();
         paintflag = 1;
@@ -246,6 +247,8 @@ public class ECGSurfaceView extends SurfaceView implements
                 if (cx >= canvaswidth) {
                     cx = (int) fbx;
                     DrawBack();
+                    DrawBack();
+                    DrawBack();
                     //画满之后，清除原来的图像，从新开始
                 }
             }
@@ -254,6 +257,7 @@ public class ECGSurfaceView extends SurfaceView implements
 
         private int finalecgdata(int arg) {
             int ecgdata = arg;
+            Log.v("argecg:",""+arg);
             if (arg == Command.ESCAPE_CHAR) {
                 if (Command.mShowData.isEmpty() == false) {
                     int next = Command.mShowData.poll();
@@ -264,6 +268,7 @@ public class ECGSurfaceView extends SurfaceView implements
                     }
                 }
             }
+            Log.v("ecg:",""+ecgdata);
             return ecgdata;
         }
     }
@@ -308,10 +313,10 @@ public class ECGSurfaceView extends SurfaceView implements
                 if (!mSaveData.isEmpty()) {
                     try {
                         try {
-                            dos.writeBytes("ecg singal\r\n");
-                            dos.writeBytes("sample_rate:");
-                            dos.writeInt(SAMPLE_RATE);
-                            dos.writeBytes("\r\n");
+//                            dos.writeBytes("ecg singal\r\n");
+//                            dos.writeBytes("sample_rate:");
+//                            dos.writeInt(SAMPLE_RATE);
+//                            dos.writeBytes("\r\n");
                             for (int i = 0; i < mSaveData.size(); i++) {
                                 int Data = mSaveData.get(i);
                                 //short Data=1;

@@ -36,9 +36,10 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     private static final int REQUEST_CONNECT_DEVICE = 1;
     //蓝牙地址
     private String address = null;
-    ImageButton imbtnbluetooth, imbtnleading, imbtnplay, imbtnlist, imbtnexit;
+    ImageButton imbtnbluetooth, imbtnsave, imbtnplay, imbtnlist, imbtnexit;
     private BluetoothAdapter blueadapter;
     private boolean btnstatus = true;//记录播放按钮的状态
+    private boolean btnblue;//记录连接状态
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
@@ -54,18 +55,22 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                     mainPresenter.StopSample();
                     imbtnplay.setBackgroundResource(R.drawable.play);
                     iecgSurfaceView.StopDraw();
-                    showLoginDialog();
                     btnstatus = true;
                 }
                 break;
             case R.id.imbtnbluetooth:
+                if(btnblue==false){
                     OpenBluetoothView();
+                }
+                else {
+                    mainPresenter.StopConnect();
+                }
                 break;
             case R.id.imbtnexit:
                 quit();
                 break;
-            case R.id.imbtnleading:
-                mainPresenter.StopConnect();
+            case R.id.imbtnsave:
+                showLoginDialog();
                 break;
             default:
                 break;
@@ -102,12 +107,13 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         //
         imbtnbluetooth=(ImageButton)findViewById(R.id.imbtnbluetooth);
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
+        btnblue=false;
         imbtnbluetooth.setOnClickListener(this);
         imbtnexit=(ImageButton)findViewById(R.id.imbtnexit);
         imbtnexit.setOnClickListener(this);
-        imbtnleading=(ImageButton)findViewById(R.id.imbtnleading);
-        //imbtnleading=(ImageButton)findViewById(R.id.imbtnleading);
-        imbtnleading.setOnClickListener(this);
+        imbtnsave =(ImageButton)findViewById(R.id.imbtnsave);
+        //imbtnsave=(ImageButton)findViewById(R.id.imbtnsave);
+        imbtnsave.setOnClickListener(this);
         IntentFilter filter = new IntentFilter(BluetoothActivity.action);
         registerReceiver(broadcastReceiver, filter);
     }
@@ -147,6 +153,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     }
     @Override
    public void Connected(){
+            btnblue=true;
             imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth);
             imbtnbluetooth.setAlpha((float)1);
             pd.dismiss();
@@ -175,6 +182,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     public void NotConnecting() {
         imbtnbluetooth.setAlpha((float)1);
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
+        btnblue=false;
         pd.setMessage("正在重新建立连接......");
         //Toast.makeText(getApplication(),"正在重新建立连接！！",Toast.LENGTH_SHORT);
         //Connecting();
@@ -201,6 +209,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     public void StopConnecte() {
         imbtnbluetooth.setAlpha((float)1);
         imbtnbluetooth.setBackgroundResource(R.drawable.bluetooth1);
+        btnblue=false;
     }
 
     @Override

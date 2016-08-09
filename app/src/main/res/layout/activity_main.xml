@@ -27,10 +27,10 @@
                 android:layout_height="0dp"
                 android:layout_weight="2"/>
             <ImageButton
-                android:id="@+id/imbtnleading"
+                android:id="@+id/imbtnsave"
                 android:layout_width="@dimen/btnwidth"
                 android:layout_height="0dp"
-                android:background="@drawable/leading"
+                android:background="@drawable/save"
                 android:layout_marginTop="16dp"
                 android:layout_weight="2"/>
             <ImageButton

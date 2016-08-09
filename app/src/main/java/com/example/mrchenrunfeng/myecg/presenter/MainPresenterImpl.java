@@ -27,7 +27,6 @@ public class MainPresenterImpl implements IMainPresenter {
             //mProcessData=new ProcessData(mHandler,mBluetoothLink);
             switch (msg.what) {
                 case Command.SOCKET_CONNECTED:
-                    mstate = Command.SOCKET_CONNECTED;
 //                    handlerThread=new HandlerThread("posttask1");
 //                    handlerThread.start();
 //                    handler=new Handler(handlerThread.getLooper());
@@ -40,7 +39,7 @@ public class MainPresenterImpl implements IMainPresenter {
                     });
                     break;
                 case Command.SOCKET_COMUNICATIONCONNECTED:
-                    mstate = Command.SOCKET_COMUNICATIONCONNECTED;
+                    //Command.intState=Command.SOCKET_COMUNICATIONCONNECTED;
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {

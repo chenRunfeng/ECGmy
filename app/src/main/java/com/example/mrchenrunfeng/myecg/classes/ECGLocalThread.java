@@ -58,7 +58,10 @@ public class ECGLocalThread implements Runnable {
                     try {
                         String fileinformation = dos.readUTF();
                         String samplerate = dos.readUTF();
-
+                        while (true){
+                            int data=dos.readInt();
+                            Command.mShowData.offer(data);
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
