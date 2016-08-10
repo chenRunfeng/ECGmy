@@ -8,10 +8,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
+
+import com.example.mrchenrunfeng.myecg.classes.FirFilter;
+import com.example.mrchenrunfeng.myecg.classes.IFirFilter;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -19,6 +18,7 @@ import android.view.SurfaceView;
 import android.widget.Toast;
 
 import com.example.mrchenrunfeng.myecg.classes.Command;
+import com.example.mrchenrunfeng.myecg.classes.IirFilter;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -198,12 +198,38 @@ public class ECGSurfaceView extends SurfaceView implements
         int cx = (int) fbx;
         int bx;
         float by = centerY;
-
+        IFirFilter iFirFilter=new FirFilter();
+        IirFilter iirFilter=new IirFilter();
         public void run() {
             DrawBack();
             //testdraw();
             while (paintflag == 1) {
-                updateECG();
+                if (Command.mShowData.isEmpty() == false) {
+                    int data = Command.mShowData.poll();
+                    float cy = centerY - (float) (iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(data))) / ECGTIMES);
+                    mSaveData.add(data);
+                    //实时获取的temp数值，因为对于画布来说
+                    bx = cx;
+                    cx++;                               //cx 自增， 就类似于随时间轴的图形
+                    //最左上角是原点，所以我要到y值，需要从画布中间开始计数
+                    Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+                    //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+//                canvas.drawPaint(linePaint);
+//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+                    canvas.drawColor(Color.TRANSPARENT);
+                    linePaint.setColor(Color.GREEN);//设置波形颜色
+                    canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+                    holder.unlockCanvasAndPost(canvas);  //解锁画布
+                    by = cy;
+                    if (cx >= canvaswidth) {
+                        cx = (int) fbx;
+                        DrawBack();
+                        DrawBack();
+                        DrawBack();
+                        //画满之后，清除原来的图像，从新开始
+                    }
+                }
             }
             //while (!done) {
             //final Object obj = new Object();//申请一个对象

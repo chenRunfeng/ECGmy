@@ -9,7 +9,7 @@ import java.util.Timer;
  */
 public class TimerThread implements Runnable {
     private volatile boolean done=false;
-    final int maxtime=10;
+    final int maxtime=15;
     int time;
     Handler handler;
 
