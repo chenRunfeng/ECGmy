@@ -198,7 +198,7 @@ public class ECGSurfaceView extends SurfaceView implements
         int cx = (int) fbx;
         int bx;
         float by = centerY;
-        IFirFilter iFirFilter=new FirFilter();
+//        IFirFilter iFirFilter=new FirFilter();
         IirFilter iirFilter=new IirFilter();
         public void run() {
             DrawBack();
@@ -206,7 +206,7 @@ public class ECGSurfaceView extends SurfaceView implements
             while (paintflag == 1) {
                 if (Command.mShowData.isEmpty() == false) {
                     int data = Command.mShowData.poll();
-                    float cy = centerY - (float) (iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(data))) / ECGTIMES);
+                    float cy = centerY - (float) (iirFilter.IIRDF2_Filter(finalecgdata(data)) / ECGTIMES);
                     mSaveData.add(data);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
