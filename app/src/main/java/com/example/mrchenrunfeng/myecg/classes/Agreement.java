@@ -13,5 +13,7 @@ public interface Agreement {
     void AStopConnect();
     void AStartTime();
     void AStopTime();
+    void AStartHeartRate();
+    void AStopHeartRate();
    // void BlueConnect();
 }

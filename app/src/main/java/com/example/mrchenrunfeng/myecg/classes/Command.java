@@ -1,12 +1,19 @@
 package com.example.mrchenrunfeng.myecg.classes;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Mr.Chen RunFENG on 2016/7/13.
@@ -48,7 +55,9 @@ public class Command {
     public final static int TIME_OUT = 31;
     //临时储存心电数据队列
     //数据暂存队列 阻塞队列
-    public static LinkedBlockingQueue<Integer> mShowData = new LinkedBlockingQueue<Integer>();
+    public static LinkedBlockingQueue<Short> mShowDataQueue=new LinkedBlockingQueue<Short>() ;
+    public static Queue<Short> mAboutheartratedataListQueue=new LinkedBlockingQueue<Short>();
+    public static Queue<Byte> mHeartRateQueue=new LinkedBlockingQueue<Byte>();
     public static final short ESCAPE_CHAR = 0xdb;
     public static final short SPECIAL_CHAR = 0xdd;
     public static final short SPECIAL_CHAR1 = 0xda;

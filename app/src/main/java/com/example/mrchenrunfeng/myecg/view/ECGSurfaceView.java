@@ -9,15 +9,17 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Environment;
 
-import com.example.mrchenrunfeng.myecg.classes.FirFilter;
-import com.example.mrchenrunfeng.myecg.classes.IFirFilter;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mrchenrunfeng.myecg.R;
 import com.example.mrchenrunfeng.myecg.classes.Command;
+import com.example.mrchenrunfeng.myecg.classes.FirFilter;
+import com.example.mrchenrunfeng.myecg.classes.IFirFilter;
 import com.example.mrchenrunfeng.myecg.classes.IirFilter;
 
 import java.io.BufferedOutputStream;
@@ -35,7 +37,7 @@ import java.util.TimerTask;
 public class ECGSurfaceView extends SurfaceView implements
         SurfaceHolder.Callback, IECGSurfaceView {
     DrawThread drawThread = null;
-    List<Integer> mSaveData = new ArrayList<Integer>();
+    List<Double> mSaveData = new ArrayList<Double>();
     int lStartX;
     int centerY;
     int paintflag = 1;//绘图是否暂停标志位，0为暂停
@@ -43,8 +45,7 @@ public class ECGSurfaceView extends SurfaceView implements
     final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
     final int SAMPLE_RATE = 250;
-    TimerTask task = null;
-    Timer timer = new Timer();
+    int simpleHeight;//记录心率的纵坐标
     //控制对象
     private SurfaceHolder holder = null;
     /**
@@ -87,7 +88,7 @@ public class ECGSurfaceView extends SurfaceView implements
 
     public void StopDraw() {
         paintflag = 0;
-        Command.mShowData.clear();
+        Command.mShowDataQueue.clear();
     }
 
 
@@ -171,7 +172,7 @@ public class ECGSurfaceView extends SurfaceView implements
 ////			canvas.drawLine(temp, 0, temp, height, linePaint);
 //				temp+=15;
 //			}
-            int simpleHeight = height / 6;
+             simpleHeight= height / 6;
             //心率
             linePaint.setTextSize(width * 3 / 100);
             linePaint.setColor(Color.CYAN);
@@ -198,15 +199,19 @@ public class ECGSurfaceView extends SurfaceView implements
         int cx = (int) fbx;
         int bx;
         float by = centerY;
-//        IFirFilter iFirFilter=new FirFilter();
+        TimerTask task = null;
+        Timer timer = new Timer();
+        IFirFilter iFirFilter=new FirFilter();
         IirFilter iirFilter=new IirFilter();
+        private TextView textView=(TextView)findViewById(R.id.txtheartratecontent);
         public void run() {
             DrawBack();
+            drawheartrate();
             //testdraw();
             while (paintflag == 1) {
-                if (Command.mShowData.isEmpty() == false) {
-                    int data = Command.mShowData.poll();
-                    float cy = centerY - (float) (iirFilter.IIRDF2_Filter(finalecgdata(data)) / ECGTIMES);
+                if (Command.mShowDataQueue.isEmpty() == false) {
+                    double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(Command.mShowDataQueue.poll())));
+                    float cy = centerY - (float) (data / ECGTIMES);
                     mSaveData.add(data);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
@@ -235,58 +240,65 @@ public class ECGSurfaceView extends SurfaceView implements
             //final Object obj = new Object();//申请一个对象
             // TODO Auto-generated method stub
             //drawBack(holder);    //画出背景和坐标轴
-//				if (task != null) {
-//					task.cancel();
-//				}
-//				task = new TimerTask() { //新建任务
-//					@Override
-//					public void run() {
-//						if (paintflag == 1) {
-//							updateECG();
-//						}
-//					}
-//				};
-//				timer.schedule(task, 0, 1); //隔1ms被执行一次该循环任务画出图形
+            drawheartrate();
             //简单一点就是1ms画出一个点，然后依次下去
             //}
         }
 
-        private void updateECG() {
-            if (Command.mShowData.isEmpty() == false) {
-                int data = Command.mShowData.poll();
-                float cy = centerY - (float) (finalecgdata(data) / ECGTIMES);
-                mSaveData.add(data);
-                //实时获取的temp数值，因为对于画布来说
-                bx = cx;
-                cx++;                               //cx 自增， 就类似于随时间轴的图形
-                //最左上角是原点，所以我要到y值，需要从画布中间开始计数
-                Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-                //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-//                canvas.drawPaint(linePaint);
-//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-                canvas.drawColor(Color.TRANSPARENT);
-                linePaint.setColor(Color.GREEN);//设置波形颜色
-                canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-                holder.unlockCanvasAndPost(canvas);  //解锁画布
-                by = cy;
-                if (cx >= canvaswidth) {
-                    cx = (int) fbx;
-                    DrawBack();
-                    DrawBack();
-                    DrawBack();
-                    //画满之后，清除原来的图像，从新开始
-                }
+        private void drawheartrate() {
+            if (task != null) {
+                task.cancel();
             }
-            //paintflag=0;
+            task = new TimerTask() { //新建任务
+//                int bx=canvaswidth * 12 / 13-canvaswidth * 5 / 100;
+//                int ex=canvaswidth * 12 / 13+canvaswidth * 5 / 100;
+                @Override
+                public void run() {
+                    if (!Command.mHeartRateQueue.isEmpty()) {
+                        textView.setText(Command.mHeartRateQueue.poll());
+                    }
+                    //Canvas c=holder.lockCanvas(new Rect(,))
+                }
+            };
+            timer.schedule(task, 0, 1000); //隔1ms被执行一次该循环任务画出图形
         }
+
+//        private void updateECG() {
+//            if (Command.mShowDataQueue.isEmpty() == false) {
+//                int data =finalecgdata(Command.mShowDataQueue.poll()) ;
+//                float cy = centerY - (float)(data / ECGTIMES);
+//                mSaveData.add(data);
+//                //实时获取的temp数值，因为对于画布来说
+//                bx = cx;
+//                cx++;                               //cx 自增， 就类似于随时间轴的图形
+//                //最左上角是原点，所以我要到y值，需要从画布中间开始计数
+//                Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+//                //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+////                canvas.drawPaint(linePaint);
+////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+//                canvas.drawColor(Color.TRANSPARENT);
+//                linePaint.setColor(Color.GREEN);//设置波形颜色
+//                canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+//                holder.unlockCanvasAndPost(canvas);  //解锁画布
+//                by = cy;
+//                if (cx >= canvaswidth) {
+//                    cx = (int) fbx;
+//                    DrawBack();
+//                    DrawBack();
+//                    DrawBack();
+//                    //画满之后，清除原来的图像，从新开始
+//                }
+//            }
+//            //paintflag=0;
+//        }
 
         private int finalecgdata(int arg) {
             int ecgdata = arg;
             Log.v("argecg:",""+arg);
             if (arg == Command.ESCAPE_CHAR) {
-                if (Command.mShowData.isEmpty() == false) {
-                    int next = Command.mShowData.poll();
+                if (Command.mShowDataQueue.isEmpty() == false) {
+                    int next = Command.mShowDataQueue.poll();
                     if (next == Command.SPECIAL_CHAR) {
                         ecgdata = Command.ESCAPE_CHAR;
                     } else if (next == Command.SPECIAL_CHAR1) {
@@ -298,7 +310,6 @@ public class ECGSurfaceView extends SurfaceView implements
             return ecgdata;
         }
     }
-
     /**
      * 保存成二进制文件
      */
@@ -334,7 +345,7 @@ public class ECGSurfaceView extends SurfaceView implements
                 }
                 DataOutputStream dos = new DataOutputStream(bos);
 
-                System.out.println(Command.mShowData.isEmpty());
+                System.out.println(Command.mShowDataQueue.isEmpty());
 
                 if (!mSaveData.isEmpty()) {
                     try {
@@ -343,10 +354,11 @@ public class ECGSurfaceView extends SurfaceView implements
 //                            dos.writeBytes("sample_rate:");
 //                            dos.writeInt(SAMPLE_RATE);
 //                            dos.writeBytes("\r\n");
-                            for (int i = 0; i < mSaveData.size(); i++) {
-                                int Data = mSaveData.get(i);
+//                            mSaveData.remove();
+                            for (int i = 2*SAMPLE_RATE; i < mSaveData.size(); i++) {
+                                double Data = mSaveData.get(i);
                                 //short Data=1;
-                                dos.writeInt(Data);
+                                dos.writeDouble(Data);
                             }
                         } catch (Exception e) {
                             // TODO: handle exception

@@ -70,7 +70,7 @@ public class ECGServerThread extends Thread implements ECGServer {
 //                            byte hght = buffer[i];
 //                            byte low = buffer[i+1];
 //                            Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
-//                            Command.mShowData.offer((int) byteToShort(low, hght));
+//                            Command.mShowDataQueue.offer((int) byteToShort(low, hght));
 //                        }
 //                    }
 //                } /*else {
@@ -196,7 +196,7 @@ public class ECGServerThread extends Thread implements ECGServer {
 //                //Thread.sleep(20);
 //                byte low = (byte) bufferedInputStream.read();
 //                Log.v("ECGDATA:", hght+"_"+low+"_"+len + "_" + byteToShort(low, hght));
-//                Command.mShowData.offer((int) byteToShort(low, hght));
+//                Command.mShowDataQueue.offer((int) byteToShort(low, hght));
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
@@ -207,8 +207,10 @@ public class ECGServerThread extends Thread implements ECGServer {
             for (int i = 0; i < buffer.length; i += 2) {
                 byte hght = buffer[i];
                 byte low = buffer[i + 1];
+                short ecgdata=byteToShort(low, hght);
                 //Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
-                Command.mShowData.offer((int) byteToShort(low, hght));
+                Command.mShowDataQueue.offer(ecgdata);
+               Command.mAboutheartratedataListQueue.offer(ecgdata);
             }
         }
         else {

@@ -21,6 +21,7 @@ public class AgreementImpl implements Agreement {
     private ThreadsHandler threadsHandler;
     private TestThread testThread;
     private TimerThread timerThread;
+    private HeartRateThread heartRateThread;
     /**
      * Created by Mr.Chen RunFENG on 2016/7/31.
      */
@@ -105,6 +106,7 @@ public class AgreementImpl implements Agreement {
     @Override
     public void ARecieveData() {
         singleThreadExecutor.execute(ecgServerThread);
+        AStartHeartRate();
         //singleThreadExecutor.execute(ecgServerThread);
        // ecgServerThread.Read();
     }
@@ -116,6 +118,7 @@ public class AgreementImpl implements Agreement {
            //ecgServerThread.StopRead();
             AStartTime();
             ecgServerThread.StopRead();
+            AStopHeartRate();
             //开启接收命令线程
             singleThreadExecutor.execute(ecgServerThread);
         }
@@ -137,5 +140,21 @@ public class AgreementImpl implements Agreement {
     @Override
     public void AStopTime() {
         timerThread.SetDone();
+    }
+    @Override
+    public void AStartHeartRate() {
+        try {
+            heartRateThread=new HeartRateThread();
+            cachedThreadPool.execute(heartRateThread);
+            cachedThreadPool.execute(heartRateThread.MAXR0());
+            cachedThreadPool.execute(heartRateThread.UpdateHeartRate());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void AStopHeartRate() {
+       heartRateThread.setDone();
     }
 }

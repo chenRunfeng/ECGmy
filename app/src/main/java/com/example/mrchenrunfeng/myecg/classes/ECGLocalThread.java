@@ -1,13 +1,9 @@
 package com.example.mrchenrunfeng.myecg.classes;
 
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -52,15 +48,15 @@ public class ECGLocalThread implements Runnable {
                 }
                 DataInputStream dos = new DataInputStream(bos);
 
-                System.out.println(Command.mShowData.isEmpty());
-                if (!Command.mShowData.isEmpty()) {
-                    Command.mShowData.clear();
+                System.out.println(Command.mShowDataQueue.isEmpty());
+                if (!Command.mShowDataQueue.isEmpty()) {
+                    Command.mShowDataQueue.clear();
                     try {
                         String fileinformation = dos.readUTF();
                         String samplerate = dos.readUTF();
                         while (true){
                             int data=dos.readInt();
-                            Command.mShowData.offer(data);
+                            Command.mShowDataQueue.offer((short)data);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
