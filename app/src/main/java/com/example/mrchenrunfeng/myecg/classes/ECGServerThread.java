@@ -135,15 +135,15 @@ public class ECGServerThread extends Thread implements ECGServer {
         int mdata;
         while (true) {
             try {
-                try {
-//                    if(bufferedInputStream.available()>0 == false){
-//                        continue;
-//                    }else{
-                        Thread.sleep(4);
-                   // }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+////                    if(bufferedInputStream.available()>0 == false){
+////                        continue;
+////                    }else{
+//                        Thread.sleep(4);
+//                   // }
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 //Log.v("handleStreamThreadid:",""+Thread.currentThread().getId());
                 if (mSocket.isConnected()==false){break;}
 //                if(bufferedInputStream.markSupported()==true)
@@ -202,13 +202,13 @@ public class ECGServerThread extends Thread implements ECGServer {
 //            }
 //        }
         //while ()
-        Log.v("dataThreadid:",""+Thread.currentThread().getId());
+        //Log.v("dataThreadid:",""+Thread.currentThread().getId());
         if (isread ==false) {
             for (int i = 0; i < buffer.length; i += 2) {
                 byte hght = buffer[i];
                 byte low = buffer[i + 1];
                 short ecgdata=byteToShort(low, hght);
-                //Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
+                Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
                 Command.mShowDataQueue.offer(ecgdata);
                Command.mAboutheartratedataListQueue.offer(ecgdata);
             }

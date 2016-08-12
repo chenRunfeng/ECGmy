@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mrchenrunfeng.myecg.R;
+import com.example.mrchenrunfeng.myecg.activity.MainActivity;
 import com.example.mrchenrunfeng.myecg.classes.Command;
 import com.example.mrchenrunfeng.myecg.classes.FirFilter;
 import com.example.mrchenrunfeng.myecg.classes.IFirFilter;
@@ -174,14 +175,14 @@ public class ECGSurfaceView extends SurfaceView implements
 //			}
              simpleHeight= height / 6;
             //心率
-            linePaint.setTextSize(width * 3 / 100);
-            linePaint.setColor(Color.CYAN);
-            mCanvas.drawText("心率(HR)", width * 9 / 11, simpleHeight / 4, linePaint);
-            linePaint.setTextSize(width * 2 / 100);
-            mCanvas.drawText("bpm", width * 16 / 17, simpleHeight / 4, linePaint);
-            linePaint.setColor(Color.MAGENTA);
-            linePaint.setTextSize(width * 5 / 100);
-            mCanvas.drawText("0", width * 12 / 13, simpleHeight - (simpleHeight / 5), linePaint);
+//            linePaint.setTextSize(width * 3 / 100);
+//            linePaint.setColor(Color.CYAN);
+//            mCanvas.drawText("心率(HR)", width * 9 / 11, simpleHeight / 4, linePaint);
+//            linePaint.setTextSize(width * 2 / 100);
+//            mCanvas.drawText("bpm", width * 16 / 17, simpleHeight / 4, linePaint);
+//            linePaint.setColor(Color.MAGENTA);
+//            linePaint.setTextSize(width * 5 / 100);
+//            mCanvas.drawText("0", width * 12 / 13, simpleHeight - (simpleHeight / 5), linePaint);
             //mCanvas.drawPath(mPath, mPaint);
         } catch (Exception e) {
         } finally {
@@ -194,19 +195,21 @@ public class ECGSurfaceView extends SurfaceView implements
         }
     }
 
+    @Override
+    public TextView getTextView(TextView textView) {
+        return textView;
+    }
+
     private class DrawThread extends Thread {
         float fbx = lStartX + flmvwidth / 2;
         int cx = (int) fbx;
         int bx;
         float by = centerY;
-        TimerTask task = null;
-        Timer timer = new Timer();
         IFirFilter iFirFilter=new FirFilter();
         IirFilter iirFilter=new IirFilter();
-        private TextView textView=(TextView)findViewById(R.id.txtheartratecontent);
         public void run() {
             DrawBack();
-            drawheartrate();
+            //drawheartrate();
             //testdraw();
             while (paintflag == 1) {
                 if (Command.mShowDataQueue.isEmpty() == false) {
@@ -240,27 +243,9 @@ public class ECGSurfaceView extends SurfaceView implements
             //final Object obj = new Object();//申请一个对象
             // TODO Auto-generated method stub
             //drawBack(holder);    //画出背景和坐标轴
-            drawheartrate();
+            //drawheartrate();
             //简单一点就是1ms画出一个点，然后依次下去
             //}
-        }
-
-        private void drawheartrate() {
-            if (task != null) {
-                task.cancel();
-            }
-            task = new TimerTask() { //新建任务
-//                int bx=canvaswidth * 12 / 13-canvaswidth * 5 / 100;
-//                int ex=canvaswidth * 12 / 13+canvaswidth * 5 / 100;
-                @Override
-                public void run() {
-                    if (!Command.mHeartRateQueue.isEmpty()) {
-                        textView.setText(Command.mHeartRateQueue.poll());
-                    }
-                    //Canvas c=holder.lockCanvas(new Rect(,))
-                }
-            };
-            timer.schedule(task, 0, 1000); //隔1ms被执行一次该循环任务画出图形
         }
 
 //        private void updateECG() {

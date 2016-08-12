@@ -10,8 +10,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mrchenrunfeng.myecg.R;
@@ -22,6 +24,9 @@ import com.example.mrchenrunfeng.myecg.view.ECGSurfaceView;
 import com.example.mrchenrunfeng.myecg.view.IECGSurfaceView;
 import com.example.mrchenrunfeng.myecg.view.IMainView;
 import com.example.mrchenrunfeng.myecg.view.SaveDialogFragmemt;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity implements IMainView,View.OnClickListener,SaveDialogFragmemt.SaveInputListener {
     NotificationManager nm;
@@ -40,6 +45,10 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     private BluetoothAdapter blueadapter;
     private boolean btnstatus = true;//记录播放按钮的状态
     private boolean btnblue;//记录连接状态
+    private TextView textView;
+    TimerTask task = null;
+    Timer timer = new Timer();
+    Handler handler=new Handler();
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
@@ -50,11 +59,13 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                     mainPresenter.StartSample();
                     iecgSurfaceView.StartDraw();
                     imbtnplay.setBackgroundResource(R.drawable.stop);
+                    drawheartrate();
                     btnstatus = false;
                 } else {
                     mainPresenter.StopSample();
                     imbtnplay.setBackgroundResource(R.drawable.play);
                     iecgSurfaceView.StopDraw();
+                    task.cancel();
                     btnstatus = true;
                 }
                 break;
@@ -116,6 +127,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         imbtnsave.setOnClickListener(this);
         IntentFilter filter = new IntentFilter(BluetoothActivity.action);
         registerReceiver(broadcastReceiver, filter);
+        textView=(TextView)findViewById(R.id.txtheartratecontent);
     }
     @Override
     protected void onStart() {
@@ -222,5 +234,28 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);
+    }
+    private void drawheartrate() {
+        if (task != null) {
+            task.cancel();
+        }
+        task = new TimerTask() { //新建任务
+            //                int bx=canvaswidth * 12 / 13-canvaswidth * 5 / 100;
+//                int ex=canvaswidth * 12 / 13+canvaswidth * 5 / 100;
+            @Override
+            public void run() {
+                if (!Command.mHeartRateQueue.isEmpty()) {
+                    long data=Command.mHeartRateQueue.poll();
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            textView.setText((int)Command.mHeartRateQueue.poll());
+//                        }
+//                    });
+                }
+                //Canvas c=holder.lockCanvas(new Rect(,))
+            }
+        };
+        timer.schedule(task, 0, 1000); //隔1ms被执行一次该循环任务画出图形
     }
 }

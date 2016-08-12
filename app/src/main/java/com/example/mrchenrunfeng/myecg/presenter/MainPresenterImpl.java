@@ -55,7 +55,7 @@ public class MainPresenterImpl implements IMainPresenter {
                         @Override
                         public void run() {
                             //agreement.AStartTime();
-                            Bluetoothsocketconnet();
+                           // Bluetoothsocketconnet();
                         }
                     });
                     break;

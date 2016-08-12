@@ -1,5 +1,7 @@
 package com.example.mrchenrunfeng.myecg.view;
 
+import android.widget.TextView;
+
 import java.io.PipedOutputStream;
 
 /**
@@ -10,5 +12,6 @@ public interface IECGSurfaceView {
     void StartDraw();
     void StopDraw();
     void SaveECG(String filename);
+    TextView getTextView(TextView textView);
 //    void ReadECG(String filneame);
 }

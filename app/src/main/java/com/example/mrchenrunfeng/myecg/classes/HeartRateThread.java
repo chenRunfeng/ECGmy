@@ -13,16 +13,23 @@ public class HeartRateThread implements Runnable{
     Queue<Short> queueheightdiference=new LinkedBlockingQueue<>();
     private volatile boolean done = false;
     int R0=0;//R波高度差
+    long ecgtimes;//记录poll出来的心电个数
      long firsttime;
      //计算心率，用差分方程
     public void run(){
         while (!done) {
-            short[] shorts=new short[250];
+//            try {
+//                Thread.sleep(200);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            short[] shorts=new short[50];
             int i=0;
             while (i<shorts.length){
                 if (!Command.mAboutheartratedataListQueue.isEmpty()){
                     shorts[i]=Command.mAboutheartratedataListQueue.poll();
                     i++;
+                    //ecgtimes++;
                 }
             }
             queueheightdiference.offer((short)(max(shorts)-min(shorts)));
@@ -59,21 +66,26 @@ public class HeartRateThread implements Runnable{
         return new Runnable() {
             @Override
             public void run() {
+                int index=0;
                 int i=0;
                 short[] ints=new short[5];
                 while (true){
                     if (!queueheightdiference.isEmpty()) {
                         short data=queueheightdiference.poll();
-                        if (i<ints.length){
-                            ints[i]=data;
-                            i++;
-                            continue;
-                        }
-                        else {
-                            R0=max(ints);
-                            firsttime=System.currentTimeMillis();
-                            Log.v("R0:",""+R0);
-                            break;
+                        ecgtimes+=50;
+                        index++;
+                        if (index>5) {
+                            if (i<ints.length){
+                                ints[i]=data;
+                                i++;
+                                continue;
+                            }
+                            else {
+                                R0=max(ints);
+                                firsttime=ecgtimes;
+                                Log.v("R01:",""+R0);
+                                break;
+                            }
                         }
                     }
                     else {continue;}
@@ -86,17 +98,22 @@ public class HeartRateThread implements Runnable{
             @Override
             public void run() {
                 while (!done){
+//                    try {
+//                        Thread.sleep(200);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
                     if (R0>0){
                        if (!queueheightdiference.isEmpty()){
                             short data=queueheightdiference.poll();
-                           if (R0>900)
-                               R0=R0/3;
-                           if (data>=(float)0.7*R0){
-                               long secondtime=System.currentTimeMillis();
-                               byte b=(byte) (60*1000/(secondtime-firsttime));
+                           ecgtimes+=50;
+                           if (data>=(float)(0.95*R0)){
+                               Log.v("r0:",""+R0);
+                               long secondtime=ecgtimes;
+                               long b=60*1000/4/(secondtime-firsttime);
                                Command.mHeartRateQueue.offer(b);
-                               Log.v("b:",""+b);
-                               R0=data;
+                               Log.v("b:",""+b+"__"+(secondtime-firsttime));
+                               //R0=data;
                                firsttime=secondtime;
                            }
                        }
