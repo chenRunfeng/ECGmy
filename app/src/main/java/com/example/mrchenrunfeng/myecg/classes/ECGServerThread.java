@@ -135,15 +135,15 @@ public class ECGServerThread extends Thread implements ECGServer {
         int mdata;
         while (true) {
             try {
-//                try {
-////                    if(bufferedInputStream.available()>0 == false){
-////                        continue;
-////                    }else{
-//                        Thread.sleep(4);
-//                   // }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+                try {
+//                    if(bufferedInputStream.available()>0 == false){
+//                        continue;
+//                    }else{
+                        Thread.sleep(4);
+                   // }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 //Log.v("handleStreamThreadid:",""+Thread.currentThread().getId());
                 if (mSocket.isConnected()==false){break;}
 //                if(bufferedInputStream.markSupported()==true)
@@ -210,7 +210,7 @@ public class ECGServerThread extends Thread implements ECGServer {
                 short ecgdata=byteToShort(low, hght);
                 Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
                 Command.mShowDataQueue.offer(ecgdata);
-               Command.mAboutheartratedataListQueue.offer(ecgdata);
+               //Command.mAboutheartratedataListQueue.offer(ecgdata);
             }
         }
         else {

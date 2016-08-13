@@ -64,29 +64,30 @@
             android:id="@+id/ECGV"
             android:layout_width="fill_parent"
             android:layout_height="match_parent" />
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_gravity="right">
+            android:layout_gravity="top">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtheartrate"
                 android:text="心率（HR）bpm"
-                android:layout_marginRight="0dp"
-                android:textColor="@color/ksw_md_solid_checked"
+                android:layout_alignParentRight="true"
+                android:textColor="@color/green"
                 android:textSize="18dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginRight="0dp"
-                android:textColor="@color/colorAccent"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                android:layout_below="@id/txtheartrate"
+                android:textColor="@color/red"
                 android:text="__"
                 android:textSize="30dp"
                 android:id="@+id/txtheartratecontent"/>
-        </LinearLayout>
+        </RelativeLayout>
     </FrameLayout>
     <!--<SurfaceView-->
         <!--android:layout_width="match_parent"-->

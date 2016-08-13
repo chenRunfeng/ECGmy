@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                     mainPresenter.StartSample();
                     iecgSurfaceView.StartDraw();
                     imbtnplay.setBackgroundResource(R.drawable.stop);
-                    drawheartrate();
+                    //drawheartrate();
                     btnstatus = false;
                 } else {
                     mainPresenter.StopSample();
@@ -231,31 +231,13 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         StopConnecte();
     }
 
+    @Override
+    public void UpdateTxtheartrate(int heartrate) {
+        textView.setText(heartrate);
+    }
+
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);
-    }
-    private void drawheartrate() {
-        if (task != null) {
-            task.cancel();
-        }
-        task = new TimerTask() { //新建任务
-            //                int bx=canvaswidth * 12 / 13-canvaswidth * 5 / 100;
-//                int ex=canvaswidth * 12 / 13+canvaswidth * 5 / 100;
-            @Override
-            public void run() {
-                if (!Command.mHeartRateQueue.isEmpty()) {
-                    long data=Command.mHeartRateQueue.poll();
-//                    handler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            textView.setText((int)Command.mHeartRateQueue.poll());
-//                        }
-//                    });
-                }
-                //Canvas c=holder.lockCanvas(new Rect(,))
-            }
-        };
-        timer.schedule(task, 0, 1000); //隔1ms被执行一次该循环任务画出图形
     }
 }

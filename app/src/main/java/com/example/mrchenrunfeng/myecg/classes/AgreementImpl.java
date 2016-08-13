@@ -143,18 +143,18 @@ public class AgreementImpl implements Agreement {
     }
     @Override
     public void AStartHeartRate() {
-        try {
-            heartRateThread=new HeartRateThread();
-            cachedThreadPool.execute(heartRateThread);
-            cachedThreadPool.execute(heartRateThread.MAXR0());
-            cachedThreadPool.execute(heartRateThread.UpdateHeartRate());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            heartRateThread=new HeartRateThread(handler);
+//            cachedThreadPool.execute(heartRateThread);
+//            cachedThreadPool.execute(heartRateThread.MAXR0());
+//            cachedThreadPool.execute(heartRateThread.UpdateHeartRate());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
     public void AStopHeartRate() {
-       heartRateThread.setDone();
+//       heartRateThread.setDone();
     }
 }

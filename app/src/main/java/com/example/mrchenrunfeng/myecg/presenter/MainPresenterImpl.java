@@ -23,7 +23,7 @@ public class MainPresenterImpl implements IMainPresenter {
     private static int timernumber=0;
     private Handler mHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(final Message msg) {
             //mProcessData=new ProcessData(mHandler,mBluetoothLink);
             switch (msg.what) {
                 case Command.SOCKET_CONNECTED:
@@ -55,7 +55,7 @@ public class MainPresenterImpl implements IMainPresenter {
                         @Override
                         public void run() {
                             //agreement.AStartTime();
-                           // Bluetoothsocketconnet();
+                           Bluetoothsocketconnet();
                         }
                     });
                     break;
@@ -131,6 +131,13 @@ public class MainPresenterImpl implements IMainPresenter {
                             timernumberreturn0();
                            mainView.TimeOut();
                             iBluetoothLink.disconnect();
+                        }
+                    });
+                case Command.HEART_RATE:
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainView.UpdateTxtheartrate(msg.arg1);
                         }
                     });
                 default:

@@ -12,6 +12,5 @@ public interface IECGSurfaceView {
     void StartDraw();
     void StopDraw();
     void SaveECG(String filename);
-    TextView getTextView(TextView textView);
 //    void ReadECG(String filneame);
 }

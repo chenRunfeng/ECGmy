@@ -119,14 +119,14 @@ public class ECGSurfaceView extends SurfaceView implements
             centerY = height / 2;
             float f1mv = (float) (ECG_1MV_DATA / ECGTIMES);
             flmvwidth = (float) height / 60;
-            //临时坐标
-            int temp = lStartX;
-            //中线位置
-            int ltempy = centerY;
-            //刻度
-            double scale = 0.25;
-            //起始刻度
-            double sstart = 0.25;
+//            //临时坐标
+//            int temp = lStartX;
+//            //中线位置
+//            int ltempy = centerY;
+//            //刻度
+//            double scale = 0.25;
+//            //起始刻度
+//            double sstart = 0.25;
 //			// 画背景格子
 //			for (int i=0;i<height;i++ )
 //			{
@@ -194,12 +194,6 @@ public class ECGSurfaceView extends SurfaceView implements
             //timer.
         }
     }
-
-    @Override
-    public TextView getTextView(TextView textView) {
-        return textView;
-    }
-
     private class DrawThread extends Thread {
         float fbx = lStartX + flmvwidth / 2;
         int cx = (int) fbx;
