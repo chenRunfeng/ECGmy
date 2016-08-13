@@ -65,7 +65,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                     mainPresenter.StopSample();
                     imbtnplay.setBackgroundResource(R.drawable.play);
                     iecgSurfaceView.StopDraw();
-                    task.cancel();
+                    //task.cancel();
                     btnstatus = true;
                 }
                 break;
@@ -233,7 +233,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
 
     @Override
     public void UpdateTxtheartrate(int heartrate) {
-        textView.setText(heartrate);
+        //textView.setText(heartrate);
     }
 
     protected void quit(){

@@ -208,9 +208,9 @@ public class ECGServerThread extends Thread implements ECGServer {
                 byte hght = buffer[i];
                 byte low = buffer[i + 1];
                 short ecgdata=byteToShort(low, hght);
-                Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
+                //Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
                 Command.mShowDataQueue.offer(ecgdata);
-               //Command.mAboutheartratedataListQueue.offer(ecgdata);
+               Command.mAboutheartratedataListQueue.offer(ecgdata);
             }
         }
         else {

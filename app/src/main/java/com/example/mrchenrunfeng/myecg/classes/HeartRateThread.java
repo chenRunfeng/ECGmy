@@ -10,13 +10,13 @@ import java.util.List;
  * Created by Mr.Chen RunFENG on 2016/8/10.
  */
 public class HeartRateThread implements Runnable {
-    List<Short> arrayList = new ArrayList<Short>() ;
+    List<heightdifference> arrayList = new ArrayList<>() ;
     private volatile boolean done = false;
     private  boolean isgetR0;
-    int R0;//首个R波高度差
-    long ecgtimes;//记录poll出来的心电个数
+    short R0;//首个R波高度差
+    int ecgtimes;//记录poll出来的心电个数
     int Rnumber;//记录r波个数
-    long count;//记录经过n个R波的采样点数
+    int count;//记录经过n个R波的采样点数
     Handler handler;
 
     public HeartRateThread(Handler handler) {
@@ -27,7 +27,7 @@ public class HeartRateThread implements Runnable {
     public void run() {
         isgetR0=true;
         R0=0;
-        ecgtimes=0;
+        //ecgtimes=0;
         Rnumber=0;
         count=0;
         while (!done) {
@@ -37,41 +37,39 @@ public class HeartRateThread implements Runnable {
                 if (!Command.mAboutheartratedataListQueue.isEmpty()) {
                     shorts[i] = Command.mAboutheartratedataListQueue.poll();
                     i++;
+                    //ecgtimes++;
+                }
+            }
+            short maxecg = max(shorts);
+            short minecg = min(shorts);
+            short difference = (short)(maxecg - minecg) ;
+            heightdifference heightdifference = new heightdifference(maxecg, minecg, difference);
+            arrayList.add(heightdifference);
+            if (arrayList.size() > 11 && isgetR0 == true) {
+                MAXR0(shorts);
+            }
+            if (R0>0){
+                if (arrayList.size()>ecgtimes) {
+                    heightdifference heightdifference1=arrayList.get(ecgtimes);
+                    short data=heightdifference1.getDifference();
+                    if (data >= (float) (0.8 * R0)) {
+                       // Log.v("r0:", "" + R0);
+                        Rnumber++;
+                        //long secondtime = ecgtimes;
+                        int index=Index(shorts,heightdifference1.getMax());
+                        count=(ecgtimes-1)*shorts.length+index;
+                        int heartrate = 60 * Command.SAMPLE_RATE /(count/ Rnumber) ;
+                        //Command.mHeartRateQueue.offer(b);
+                        handler.obtainMessage(Command.HEART_RATE, heartrate).sendToTarget();
+                        Log.v("b:", "" + heartrate + "__" + count+"__"+Rnumber+"__"+index);
+                        R0=data;
+                        //firsttime = secondtime;
+                    }
                     ecgtimes++;
                 }
             }
-            if (ecgtimes>250) {
-                short maxecg=max(shorts);
-                short minecg=min(shorts);
-                int difference=maxecg-minecg;
-                arrayList.add((short)difference);
-                if (arrayList.size()>6&&isgetR0==true){
-                    short[] ss=new short[7];
-                    for (int j=0;i<7;j++){
-                        ss[j]= arrayList.get(j);
-                    }
-                    R0=max(ss);
-                    int rindex=arrayList.indexOf(R0);
-                    Rnumber++;
-                    isgetR0=false;
-                }
-            }
-            if (R0>0){
-                if (!arrayList.isEmpty()) {
-                    short data = arrayList.poll();
-                    if (data >= (float) (0.8 * R0)) {
-                        Log.v("r0:", "" + R0);
-                        long secondtime = ecgtimes;
-                        long b = 60 * 1000 / 4 / (secondtime - firsttime);
-                        //Command.mHeartRateQueue.offer(b);
-                        handler.obtainMessage(Command.HEART_RATE, b).sendToTarget();
-                        Log.v("b:", "" + b + "__" + (secondtime - firsttime));
-                        //R0=data;
-                        firsttime = secondtime;
-                    }
-                }
-            }
         }
+        arrayList.clear();
     }
 
     //求数组元素中的最大值
@@ -104,7 +102,53 @@ public class HeartRateThread implements Runnable {
     public void setDone() {
         done = true;
     }
+    public void MAXR0(short[] shorts) {
+        short[] ss = new short[12];
+        for (int j = 6; j < 12; j++) {
+            ss[j] = arrayList.get(j).getDifference();
+        }
+        R0 = max(ss);
+        Log.v("R0:",""+R0);
+//        heightdifference heightdifference=getRmax(R0);
+//        int arrindex=arrayList.indexOf(heightdifference)-6;
+//        int index=Index(shorts,heightdifference.getMax());
+//        if (index!=-1) {
+//            count=(arrindex-1)*50+index;
+//            Log.v("maxr0:",""+count+"__"+index+"__"+arrindex);
+//        }
+        //arrayList.clear();
+        //int rindex = arrayList.indexOf(R0);
+        ecgtimes=12;
+        Rnumber++;
+        isgetR0 = false;
+    }
+    public heightdifference getRmax(short arg){
+        for (heightdifference h:arrayList
+                ) {
+            if (h.getDifference()==arg)return h;
+        }
+        return null;
+    }
 
+    private class heightdifference {
+        private short max;
+        private short min;
+        private short difference;
+
+        public heightdifference(short difference, short max, short min) {
+            this.difference = difference;
+            this.max = max;
+            this.min = min;
+        }
+
+        public short getMax() {
+            return max;
+        }
+
+        public short getDifference() {
+            return difference;
+        }
+    }
 //    public short MAXR0() {
 //        short r0;
 //        int i = 0;

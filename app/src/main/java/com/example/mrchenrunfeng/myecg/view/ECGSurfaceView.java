@@ -45,7 +45,6 @@ public class ECGSurfaceView extends SurfaceView implements
     final int ECGTIMES = 2;
     final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
-    final int SAMPLE_RATE = 250;
     int simpleHeight;//记录心率的纵坐标
     //控制对象
     private SurfaceHolder holder = null;
@@ -227,8 +226,8 @@ public class ECGSurfaceView extends SurfaceView implements
                     if (cx >= canvaswidth) {
                         cx = (int) fbx;
                         DrawBack();
-                        DrawBack();
-                        DrawBack();
+//                        DrawBack();
+//                        DrawBack();
                         //画满之后，清除原来的图像，从新开始
                     }
                 }
@@ -324,7 +323,7 @@ public class ECGSurfaceView extends SurfaceView implements
                 }
                 DataOutputStream dos = new DataOutputStream(bos);
 
-                System.out.println(Command.mShowDataQueue.isEmpty());
+               // System.out.println(Command.mShowDataQueue.isEmpty());
 
                 if (!mSaveData.isEmpty()) {
                     try {
@@ -334,7 +333,7 @@ public class ECGSurfaceView extends SurfaceView implements
 //                            dos.writeInt(SAMPLE_RATE);
 //                            dos.writeBytes("\r\n");
 //                            mSaveData.remove();
-                            for (int i = 2*SAMPLE_RATE; i < mSaveData.size(); i++) {
+                            for (int i = 2*Command.SAMPLE_RATE; i < mSaveData.size(); i++) {
                                 double Data = mSaveData.get(i);
                                 //short Data=1;
                                 dos.writeDouble(Data);

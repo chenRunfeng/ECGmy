@@ -55,6 +55,7 @@ public class Command {
     public final static int TIME_OUT = 31;
     //心率命令
     public final static int HEART_RATE=32;
+    public final static int SAMPLE_RATE = 250;
     //临时储存心电数据队列
     //数据暂存队列 阻塞队列
     public static LinkedBlockingQueue<Short> mShowDataQueue=new LinkedBlockingQueue<Short>() ;
