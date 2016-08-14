@@ -18,7 +18,7 @@ public interface IMainView {
   void StopConnecte();
   void TimeOut();
   void showLoginDialog();
-  void UpdateTxtheartrate(int heartrate);
+  void UpdateTxtheartrate();
 //    void Play();
 //    void Close();
 //    void Save();

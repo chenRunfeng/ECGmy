@@ -232,8 +232,11 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     }
 
     @Override
-    public void UpdateTxtheartrate(int heartrate) {
-        //textView.setText(heartrate);
+    public void UpdateTxtheartrate() {
+        if (!Command.mHeartRateQueue.isEmpty()) {
+            int heartrate=Command.mHeartRateQueue.poll();
+            textView.setText(String.valueOf(heartrate));
+        }
     }
 
     protected void quit(){

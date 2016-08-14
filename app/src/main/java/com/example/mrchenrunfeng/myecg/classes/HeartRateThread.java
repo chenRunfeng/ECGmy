@@ -30,10 +30,12 @@ public class HeartRateThread implements Runnable {
         //ecgtimes=0;
         Rnumber=0;
         count=0;
+        byte section=0;
         while (!done) {
             short[] shorts = new short[50];
             int i = 0;
             while (i < shorts.length) {
+                if (done){break;}
                 if (!Command.mAboutheartratedataListQueue.isEmpty()) {
                     shorts[i] = Command.mAboutheartratedataListQueue.poll();
                     i++;
@@ -52,19 +54,22 @@ public class HeartRateThread implements Runnable {
                 if (arrayList.size()>ecgtimes) {
                     heightdifference heightdifference1=arrayList.get(ecgtimes);
                     short data=heightdifference1.getDifference();
-                    if (data >= (float) (0.8 * R0)) {
+                    if (section>=5){R0=(short) (R0*0.8);}
+                    if (data >=0.9*R0) {
                        // Log.v("r0:", "" + R0);
                         Rnumber++;
                         //long secondtime = ecgtimes;
                         int index=Index(shorts,heightdifference1.getMax());
                         count=(ecgtimes-1)*shorts.length+index;
                         int heartrate = 60 * Command.SAMPLE_RATE /(count/ Rnumber) ;
-                        //Command.mHeartRateQueue.offer(b);
-                        handler.obtainMessage(Command.HEART_RATE, heartrate).sendToTarget();
-                        Log.v("b:", "" + heartrate + "__" + count+"__"+Rnumber+"__"+index);
+                        Command.mHeartRateQueue.offer(heartrate);
+                        handler.obtainMessage(Command.HEART_RATE).sendToTarget();
+                        Log.v("b:", "" + heartrate + "__" + count+"__"+Rnumber+"__"+index+"__"+R0);
                         R0=data;
+                        section=0;
                         //firsttime = secondtime;
                     }
+                    else {section++;}
                     ecgtimes++;
                 }
             }
@@ -78,7 +83,7 @@ public class HeartRateThread implements Runnable {
         for (int i = 0; i < anArray.length; i++) {
             if (anArray[i] > MaxValue) MaxValue = anArray[i];
         }
-        System.out.println("数组元素的最大值为" + MaxValue);
+        //System.out.println("数组元素的最大值为" + MaxValue);
         return (MaxValue);
 
     }
@@ -89,7 +94,7 @@ public class HeartRateThread implements Runnable {
         for (int i = 0; i < anArray.length; i++) {
             if (anArray[i] < MinValue) MinValue = anArray[i];
         }
-        System.out.println("数组元素的最小值为" + MinValue);
+        //System.out.println("数组元素的最小值为" + MinValue);
         return (MinValue);
     }
     public int Index(short[] array,short arg ){

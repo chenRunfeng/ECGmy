@@ -60,7 +60,7 @@ public class Command {
     //数据暂存队列 阻塞队列
     public static LinkedBlockingQueue<Short> mShowDataQueue=new LinkedBlockingQueue<Short>() ;
     public static Queue<Short> mAboutheartratedataListQueue=new LinkedBlockingQueue<Short>();
-    public static Queue<Long> mHeartRateQueue=new LinkedBlockingQueue<Long>();
+    public static Queue<Integer> mHeartRateQueue=new LinkedBlockingQueue<Integer>();
     public static final short ESCAPE_CHAR = 0xdb;
     public static final short SPECIAL_CHAR = 0xdd;
     public static final short SPECIAL_CHAR1 = 0xda;

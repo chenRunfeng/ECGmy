@@ -45,7 +45,7 @@ public class ECGSurfaceView extends SurfaceView implements
     final int ECGTIMES = 2;
     final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
-    int simpleHeight;//记录心率的纵坐标
+    //int simpleHeight;//记录心率的纵坐标
     //控制对象
     private SurfaceHolder holder = null;
     /**
@@ -172,7 +172,7 @@ public class ECGSurfaceView extends SurfaceView implements
 ////			canvas.drawLine(temp, 0, temp, height, linePaint);
 //				temp+=15;
 //			}
-             simpleHeight= height / 6;
+             //simpleHeight= height / 6;
             //心率
 //            linePaint.setTextSize(width * 3 / 100);
 //            linePaint.setColor(Color.CYAN);
@@ -209,6 +209,7 @@ public class ECGSurfaceView extends SurfaceView implements
                     double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(Command.mShowDataQueue.poll())));
                     float cy = centerY - (float) (data / ECGTIMES);
                     mSaveData.add(data);
+                    Command.mAboutheartratedataListQueue.offer((short)data);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
                     cx++;                               //cx 自增， 就类似于随时间轴的图形
@@ -218,7 +219,7 @@ public class ECGSurfaceView extends SurfaceView implements
 //                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 //                canvas.drawPaint(linePaint);
 //                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-                    canvas.drawColor(Color.TRANSPARENT);
+                    //canvas.drawColor(Color.TRANSPARENT);
                     linePaint.setColor(Color.GREEN);//设置波形颜色
                     canvas.drawLine(bx, by, cx, cy, linePaint); //画线
                     holder.unlockCanvasAndPost(canvas);  //解锁画布
@@ -226,8 +227,8 @@ public class ECGSurfaceView extends SurfaceView implements
                     if (cx >= canvaswidth) {
                         cx = (int) fbx;
                         DrawBack();
-//                        DrawBack();
-//                        DrawBack();
+                        DrawBack();
+                        DrawBack();
                         //画满之后，清除原来的图像，从新开始
                     }
                 }
@@ -273,7 +274,7 @@ public class ECGSurfaceView extends SurfaceView implements
 
         private int finalecgdata(int arg) {
             int ecgdata = arg;
-            Log.v("argecg:",""+arg);
+           // Log.v("argecg:",""+arg);
             if (arg == Command.ESCAPE_CHAR) {
                 if (Command.mShowDataQueue.isEmpty() == false) {
                     int next = Command.mShowDataQueue.poll();
@@ -284,7 +285,7 @@ public class ECGSurfaceView extends SurfaceView implements
                     }
                 }
             }
-            Log.v("ecg:",""+ecgdata);
+           // Log.v("ecg:",""+ecgdata);
             return ecgdata;
         }
     }

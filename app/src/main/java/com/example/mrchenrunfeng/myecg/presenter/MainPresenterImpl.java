@@ -134,10 +134,11 @@ public class MainPresenterImpl implements IMainPresenter {
                         }
                     });
                 case Command.HEART_RATE:
+                     //int a=msg.arg1;
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mainView.UpdateTxtheartrate(msg.arg1);
+                            mainView.UpdateTxtheartrate();
                         }
                     });
                 default:
