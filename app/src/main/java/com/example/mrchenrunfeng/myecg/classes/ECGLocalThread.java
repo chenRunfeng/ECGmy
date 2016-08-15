@@ -1,6 +1,7 @@
 package com.example.mrchenrunfeng.myecg.classes;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -34,7 +35,7 @@ public class ECGLocalThread implements Runnable {
                 //得到一个路径，内容是sdcard的文件夹路径和名字
                 String path = sdcardDir.getPath() + "//ECGDATA//";
                 File path1 = new File(path);
-                File file = new File(path1, filname + ".txt");
+                File file = new File(path1, filname);
                 FileInputStream fin = null;
                 BufferedInputStream bos = null;
                 try {
@@ -49,20 +50,19 @@ public class ECGLocalThread implements Runnable {
                 DataInputStream dos = new DataInputStream(bos);
 
                 System.out.println(Command.mShowDataQueue.isEmpty());
-                if (!Command.mShowDataQueue.isEmpty()) {
+//                if (!Command.mShowDataQueue.isEmpty()) {
                     Command.mShowDataQueue.clear();
                     try {
-                        String fileinformation = dos.readUTF();
-                        String samplerate = dos.readUTF();
                         while (true){
-                            int data=dos.readInt();
+                            double data=dos.readDouble();
                             Command.mShowDataQueue.offer((short)data);
+                            Log.v("localecg:",""+data);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     //while (true)
-                }
+                //}
             }
         }
 

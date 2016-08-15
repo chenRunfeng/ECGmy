@@ -18,6 +18,7 @@
         <intent-filter>
             <action android:name="com.example.mrchenrunfeng.myecg.activity.MainActivity" />
             <action android:name="com.example.mrchenrunfeng.myecg.activity.BluetoothActivity" />
+            <action android:name="com.example.mrchenrunfeng.myecg.activity.SaveListActivity" />
             <!--<action android:name="android.intent.action.MAIN"/>-->
 
             <!--<category android:name="android.intent.category.LAUNCHER"/>-->
@@ -31,6 +32,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.BluetoothActivity" android:screenOrientation="landscape" />
+        <activity android:name=".activity.SaveListActivity" android:screenOrientation="landscape" />
     </application>
 
 </manifest>

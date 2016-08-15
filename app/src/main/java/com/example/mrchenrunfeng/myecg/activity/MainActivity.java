@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.example.mrchenrunfeng.myecg.R;
 import com.example.mrchenrunfeng.myecg.classes.Command;
+import com.example.mrchenrunfeng.myecg.classes.ECGLocalThread;
+import com.example.mrchenrunfeng.myecg.classes.HeartRateThread;
 import com.example.mrchenrunfeng.myecg.presenter.IMainPresenter;
 import com.example.mrchenrunfeng.myecg.presenter.MainPresenterImpl;
 import com.example.mrchenrunfeng.myecg.view.ECGSurfaceView;
@@ -31,19 +33,26 @@ import java.util.TimerTask;
 public class MainActivity extends Activity implements IMainView,View.OnClickListener,SaveDialogFragmemt.SaveInputListener {
     NotificationManager nm;
     Notification notification;
-    final int ID_LED=19871103;
+    //final int ID_LED=19871103;
     private  IMainPresenter mainPresenter;
     private ProgressDialog pd;
     IECGSurfaceView iecgSurfaceView;
     //启动blueactivity.
     private Intent bluetooth;
+    private Intent save;
     //启动扫描页面蓝牙请求连接代号
     private static final int REQUEST_CONNECT_DEVICE = 1;
+    //启动保存文件列表启动代号
+    private static final int SAVE_LIST=41;
+    //播放按钮三种状态
+    private  final byte SANPLING=1;
+    private final byte NOTSAMPLING=2;
+    private final byte DEFAULTSTART=0;
     //蓝牙地址
     private String address = null;
     ImageButton imbtnbluetooth, imbtnsave, imbtnplay, imbtnlist, imbtnexit;
     private BluetoothAdapter blueadapter;
-    private boolean btnstatus = true;//记录播放按钮的状态
+    private byte btnstatus =DEFAULTSTART;//记录播放按钮的状态
     private boolean btnblue;//记录连接状态
     private TextView textView;
     TimerTask task = null;
@@ -55,18 +64,23 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         iecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
         switch (v.getId()) {
             case R.id.imbtnplay:
-                if (btnstatus) {
+                if (btnstatus==DEFAULTSTART) {
                     mainPresenter.StartSample();
                     iecgSurfaceView.StartDraw();
                     imbtnplay.setBackgroundResource(R.drawable.stop);
                     //drawheartrate();
-                    btnstatus = false;
-                } else {
+                    btnstatus =SANPLING;
+                } else if(btnstatus==SANPLING) {
                     mainPresenter.StopSample();
                     imbtnplay.setBackgroundResource(R.drawable.play);
                     iecgSurfaceView.StopDraw();
                     //task.cancel();
-                    btnstatus = true;
+                    btnstatus = DEFAULTSTART;
+                }
+                else {
+                    imbtnplay.setBackgroundResource(R.drawable.play);
+                    iecgSurfaceView.StopDraw();
+                    btnstatus=DEFAULTSTART;
                 }
                 break;
             case R.id.imbtnbluetooth:
@@ -82,6 +96,9 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
                 break;
             case R.id.imbtnsave:
                 showLoginDialog();
+                break;
+            case R.id.imbtnlist:
+                OpenSaveListview();
                 break;
             default:
                 break;
@@ -101,12 +118,12 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         setContentView(R.layout.activity_main);
         blueadapter= BluetoothAdapter.getDefaultAdapter();
         pd=new ProgressDialog(this);
-        nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        notification = new Notification();
-        notification.ledARGB = 0xFFFFFF;  //这里是颜色，我们可以尝试改变，理论上0xFF0000是红色，0x00FF00是绿色
-        notification.ledOnMS = 100;
-        notification.ledOffMS = 100;
-        notification.flags = Notification.FLAG_SHOW_LIGHTS;
+//        nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//        notification = new Notification();
+//        notification.ledARGB = 0xFFFFFF;  //这里是颜色，我们可以尝试改变，理论上0xFF0000是红色，0x00FF00是绿色
+//        notification.ledOnMS = 100;
+//        notification.ledOffMS = 100;
+//        notification.flags = Notification.FLAG_SHOW_LIGHTS;
         if (blueadapter == null) {
             Toast.makeText(this, "蓝牙不可用！！",
                     Toast.LENGTH_SHORT).show();
@@ -128,6 +145,8 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         IntentFilter filter = new IntentFilter(BluetoothActivity.action);
         registerReceiver(broadcastReceiver, filter);
         textView=(TextView)findViewById(R.id.txtheartratecontent);
+        imbtnlist=(ImageButton)findViewById(R.id.imbtnlist);
+        imbtnlist.setOnClickListener(this);
     }
     @Override
     protected void onStart() {
@@ -138,10 +157,21 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     //蓝牙搜索结果处理
     public void onActivityResult(int requestCode, int resultCode, Intent data){
 
-        if(requestCode==REQUEST_CONNECT_DEVICE && resultCode==Activity.RESULT_OK){
-            address=data.getExtras().getString(BluetoothActivity.EXTRA_DEVICE_ADDRESS);
-             mainPresenter=MainPresenterImpl.getUniqueInstance(this,address);
-            mainPresenter.Bluetoothsocketconnet();
+        if (resultCode==Activity.RESULT_OK) {
+            mainPresenter=MainPresenterImpl.getUniqueInstance(this);
+            if(requestCode==REQUEST_CONNECT_DEVICE ){
+                address=data.getExtras().getString(BluetoothActivity.EXTRA_DEVICE_ADDRESS);
+                mainPresenter.IniBlutoothLink(address);
+                mainPresenter.Bluetoothsocketconnet();
+            }
+            else if (requestCode==SAVE_LIST){
+                String filename=data.getExtras().getString(SaveListActivity.FILEPATH);
+                mainPresenter.ReadLocalECG(filename);
+                iecgSurfaceView.StartDraw();
+                imbtnplay.setBackgroundResource(R.drawable.stop);
+                btnstatus=NOTSAMPLING;
+                //HeartRateThread heartRateThread=new HeartRateThread()
+            }
         }
     }
     //保存数据
@@ -239,6 +269,11 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         }
     }
 
+    public void OpenSaveListview(){
+         save= new Intent();
+        save.setClass(MainActivity.this, SaveListActivity.class);
+        startActivityForResult(save, SAVE_LIST);
+    }
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);

@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.mrchenrunfeng.myecg.activity.BluetoothActivity;
 import com.example.mrchenrunfeng.myecg.classes.Agreement;
 import com.example.mrchenrunfeng.myecg.classes.AgreementImpl;
 import com.example.mrchenrunfeng.myecg.classes.BluetoothLink;
@@ -153,16 +154,21 @@ public class MainPresenterImpl implements IMainPresenter {
         }
     }
 
-    private MainPresenterImpl(IMainView iMainView, String adress) {
+    private MainPresenterImpl(IMainView iMainView) {
         this.mainView = iMainView;
-        BluetoothLink bluetoothLink = new BluetoothLink(mHandler, adress);
-        this.iBluetoothLink = bluetoothLink;
-        this.agreement = new AgreementImpl(mHandler, bluetoothLink);
+        //IniBlutoothLink(adress);
+        this.agreement = new AgreementImpl(mHandler);
     }
 
-    public static synchronized MainPresenterImpl getUniqueInstance(IMainView iMainView, String adress) {
+    public void IniBlutoothLink(String adress) {
+        BluetoothLink bluetoothLink = new BluetoothLink(mHandler, adress);
+        this.iBluetoothLink = bluetoothLink;
+        agreement.AIniBluetoothLink(bluetoothLink);
+    }
+
+    public static synchronized MainPresenterImpl getUniqueInstance(IMainView iMainView) {
         if (uniqueInstance == null) {
-            uniqueInstance = new MainPresenterImpl(iMainView, adress);
+            uniqueInstance = new MainPresenterImpl(iMainView);
         }
         return uniqueInstance;
     }
@@ -203,5 +209,10 @@ public class MainPresenterImpl implements IMainPresenter {
     @Override
     public void StopConnect() {
        agreement.AStopConnect();
+    }
+
+    @Override
+    public void ReadLocalECG(String filepath) {
+        agreement.AReadLocalECG(filepath);
     }
 }

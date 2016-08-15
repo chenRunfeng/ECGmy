@@ -202,11 +202,16 @@ public class ECGSurfaceView extends SurfaceView implements
         IirFilter iirFilter=new IirFilter();
         public void run() {
             DrawBack();
+            //DrawBack();
+           // DrawBack();
             //drawheartrate();
             //testdraw();
             while (paintflag == 1) {
                 if (Command.mShowDataQueue.isEmpty() == false) {
-                    double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(Command.mShowDataQueue.poll())));
+                    short ecg=Command.mShowDataQueue.poll();
+                    double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
+                    //int data=finalecgdata(Command.mShowDataQueue.poll());
+                    //double data=0;
                     float cy = centerY - (float) (data / ECGTIMES);
                     mSaveData.add(data);
                     Command.mAboutheartratedataListQueue.offer((short)data);
@@ -223,6 +228,7 @@ public class ECGSurfaceView extends SurfaceView implements
                     linePaint.setColor(Color.GREEN);//设置波形颜色
                     canvas.drawLine(bx, by, cx, cy, linePaint); //画线
                     holder.unlockCanvasAndPost(canvas);  //解锁画布
+                    //Log.d("showtime:",""+System.currentTimeMillis());
                     by = cy;
                     if (cx >= canvaswidth) {
                         cx = (int) fbx;
@@ -294,7 +300,7 @@ public class ECGSurfaceView extends SurfaceView implements
      */
     @Override
     public void SaveECG(String fileName) {
-        System.out.println("开始保存：" + mSaveData.size());
+        //System.out.println("开始保存：" + mSaveData.size());
 
         // 先判断是否有SDCard
         if ((Environment.getExternalStorageState() != null) && (fileName != null)) {

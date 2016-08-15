@@ -3,6 +3,7 @@ package com.example.mrchenrunfeng.myecg.classes;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -10,10 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+//import comrt.util.DoubleBufferedQueue;
+
 
 /**
  * Created by Mr.Chen RunFENG on 2016/7/13.
@@ -58,7 +62,7 @@ public class Command {
     public final static int SAMPLE_RATE = 250;
     //临时储存心电数据队列
     //数据暂存队列 阻塞队列
-    public static LinkedBlockingQueue<Short> mShowDataQueue=new LinkedBlockingQueue<Short>() ;
+    public static ConcurrentLinkedQueue<Short> mShowDataQueue=new ConcurrentLinkedQueue<Short>() ;
     public static Queue<Short> mAboutheartratedataListQueue=new LinkedBlockingQueue<Short>();
     public static Queue<Integer> mHeartRateQueue=new LinkedBlockingQueue<Integer>();
     public static final short ESCAPE_CHAR = 0xdb;

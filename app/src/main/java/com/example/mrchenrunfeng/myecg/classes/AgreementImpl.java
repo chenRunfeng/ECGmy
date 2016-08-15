@@ -57,12 +57,16 @@ public class AgreementImpl implements Agreement {
             }
         }
     }
-    public AgreementImpl(Handler h,BluetoothLink b){
+    public AgreementImpl(Handler h){
         handler=h;
-        bluetoothLink=b;
         singleThreadExecutor= Executors.newSingleThreadExecutor();
         cachedThreadPool=Executors.newCachedThreadPool();
     }
+
+    public void AIniBluetoothLink(BluetoothLink b) {
+        bluetoothLink=b;
+    }
+
     @Override
     public void AConnect(){
        // new Thread(new ConnectedThread(bluetoothLink)).start();
@@ -154,5 +158,12 @@ public class AgreementImpl implements Agreement {
     @Override
     public void AStopHeartRate() {
        heartRateThread.setDone();
+    }
+
+    @Override
+    public void AReadLocalECG(String filepath) {
+        ECGLocalThread ecgLocalThread=new ECGLocalThread(filepath);
+        cachedThreadPool.execute(ecgLocalThread);
+        AStartHeartRate();
     }
 }

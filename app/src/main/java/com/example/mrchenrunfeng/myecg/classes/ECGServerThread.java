@@ -210,6 +210,8 @@ public class ECGServerThread extends Thread implements ECGServer {
                 short ecgdata=byteToShort(low, hght);
                 //Log.v("ECGDATA:", hght + "_" + low + "_" + len + "_" + byteToShort(low, hght));
                 Command.mShowDataQueue.offer(ecgdata);
+                //Command.temp=ecgdata;
+                Log.v("recievetime:",""+System.currentTimeMillis());
             }
         }
         else {

@@ -11,4 +11,6 @@ public interface IMainPresenter {
     void StartSample();
     void StopSample();
     void StopConnect();
+    void ReadLocalECG(String filepath);
+    void IniBlutoothLink(String adress);
 }
