@@ -17,5 +17,6 @@ public interface Agreement {
     void AStopHeartRate();
     void AReadLocalECG(String filepath);
     void AIniBluetoothLink(BluetoothLink b);
+    void AStopLocalECG();
    // void BlueConnect();
 }

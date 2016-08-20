@@ -22,6 +22,7 @@ public class AgreementImpl implements Agreement {
     private TestThread testThread;
     private TimerThread timerThread;
     private HeartRateThread heartRateThread;
+    private ECGLocalThread ecgLocalThread;
     /**
      * Created by Mr.Chen RunFENG on 2016/7/31.
      */
@@ -157,13 +158,22 @@ public class AgreementImpl implements Agreement {
 
     @Override
     public void AStopHeartRate() {
-       heartRateThread.setDone();
+        if (heartRateThread!=null) {
+            heartRateThread.setDone();
+        }
     }
 
     @Override
     public void AReadLocalECG(String filepath) {
-        ECGLocalThread ecgLocalThread=new ECGLocalThread(filepath);
+        ecgLocalThread=new ECGLocalThread(filepath);
         cachedThreadPool.execute(ecgLocalThread);
         AStartHeartRate();
+    }
+
+    @Override
+    public void AStopLocalECG() {
+        if (ecgLocalThread!=null){
+            ecgLocalThread.setDone();
+        }
     }
 }

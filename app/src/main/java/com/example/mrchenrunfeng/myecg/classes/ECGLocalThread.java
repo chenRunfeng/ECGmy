@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class ECGLocalThread implements Runnable {
     private String filname;
-
+    private volatile boolean done = false;
     public ECGLocalThread(String filname) {
         this.filname = filname;
     }
@@ -49,11 +49,11 @@ public class ECGLocalThread implements Runnable {
                 }
                 DataInputStream dos = new DataInputStream(bos);
 
-                System.out.println(Command.mShowDataQueue.isEmpty());
+                //System.out.println(Command.mShowDataQueue.isEmpty());
 //                if (!Command.mShowDataQueue.isEmpty()) {
                     Command.mShowDataQueue.clear();
                     try {
-                        while (true){
+                        while (!done){
                             double data=dos.readDouble();
                             Command.mShowDataQueue.offer((short)data);
                             Log.v("localecg:",""+data);
@@ -66,5 +66,8 @@ public class ECGLocalThread implements Runnable {
             }
         }
 
+    }
+    public void setDone() {
+        done = true;
     }
 }

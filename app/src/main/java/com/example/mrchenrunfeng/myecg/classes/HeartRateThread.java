@@ -48,7 +48,7 @@ public class HeartRateThread implements Runnable {
             heightdifference heightdifference = new heightdifference(maxecg, minecg, difference);
             arrayList.add(heightdifference);
             if (arrayList.size() > 11 && isgetR0 == true) {
-                MAXR0(shorts);
+                MAXR0();
             }
             if (R0>0){
                 if (arrayList.size()>ecgtimes) {
@@ -107,7 +107,7 @@ public class HeartRateThread implements Runnable {
     public void setDone() {
         done = true;
     }
-    public void MAXR0(short[] shorts) {
+    public void MAXR0() {
         short[] ss = new short[12];
         for (int j = 6; j < 12; j++) {
             ss[j] = arrayList.get(j).getDifference();

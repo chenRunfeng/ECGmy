@@ -19,6 +19,8 @@ public interface IMainView {
   void TimeOut();
   void showLoginDialog();
   void UpdateTxtheartrate();
+  void StopHeartrate();
+  void StopLocalECG();
 //    void Play();
 //    void Close();
 //    void Save();

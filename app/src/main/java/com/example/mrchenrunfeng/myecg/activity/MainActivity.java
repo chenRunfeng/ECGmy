@@ -61,7 +61,6 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
-        iecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
         switch (v.getId()) {
             case R.id.imbtnplay:
                 if (btnstatus==DEFAULTSTART) {
@@ -118,6 +117,8 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         setContentView(R.layout.activity_main);
         blueadapter= BluetoothAdapter.getDefaultAdapter();
         pd=new ProgressDialog(this);
+        iecgSurfaceView = (ECGSurfaceView) findViewById(R.id.ECGV);
+        iecgSurfaceView.SetImainview(this);
 //        nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 //        notification = new Notification();
 //        notification.ledARGB = 0xFFFFFF;  //这里是颜色，我们可以尝试改变，理论上0xFF0000是红色，0x00FF00是绿色
@@ -156,7 +157,6 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
     }
     //蓝牙搜索结果处理
     public void onActivityResult(int requestCode, int resultCode, Intent data){
-
         if (resultCode==Activity.RESULT_OK) {
             mainPresenter=MainPresenterImpl.getUniqueInstance(this);
             if(requestCode==REQUEST_CONNECT_DEVICE ){
@@ -274,6 +274,21 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
         save.setClass(MainActivity.this, SaveListActivity.class);
         startActivityForResult(save, SAVE_LIST);
     }
+
+    @Override
+    public void StopHeartrate() {
+        if (mainPresenter!=null) {
+            mainPresenter.StopHeartrate();
+        }
+    }
+
+    @Override
+    public void StopLocalECG() {
+        if (mainPresenter!=null) {
+            mainPresenter.Stopreadlocalecg();
+        }
+    }
+
     protected void quit(){
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(0);

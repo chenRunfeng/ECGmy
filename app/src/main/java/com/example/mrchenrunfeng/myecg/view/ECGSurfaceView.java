@@ -55,6 +55,7 @@ public class ECGSurfaceView extends SurfaceView implements
     private Canvas mCanvas;
     private int canvaswidth;
     private int canvasheigth;
+    private IMainView iMainView;
 //	/**
 //	 * 右边部分平均每一行所占高度
 //	 */
@@ -67,6 +68,9 @@ public class ECGSurfaceView extends SurfaceView implements
 
     public void surfaceCreated(SurfaceHolder holder) {
         System.out.println("surfaceCreated!!");
+//        holder=getHolder();
+//        this.holder = holder;
+//        this.holder.addCallback(this);
         DrawBack();
     }
 
@@ -76,10 +80,13 @@ public class ECGSurfaceView extends SurfaceView implements
 
     public void surfaceDestroyed(SurfaceHolder holder) {
         System.out.println("surfaceDestroyed!!");
+      resetvalues();
         //cachedThreadpool.shutdown();
     }
 
     public void StartDraw() {
+        holder = getHolder();
+        holder.addCallback(this);
         mSaveData.clear();
         drawThread = new DrawThread();
         drawThread.start();
@@ -87,15 +94,23 @@ public class ECGSurfaceView extends SurfaceView implements
     }
 
     public void StopDraw() {
+        resetvalues();
+    }
+    //重置相关变量
+    private void resetvalues() {
         paintflag = 0;
         Command.mShowDataQueue.clear();
+        Command.mHeartRateQueue.clear();
+        Command.mAboutheartratedataListQueue.clear();
+        iMainView.StopHeartrate();
+        iMainView.StopLocalECG();
     }
 
 
     /**
      * 画图的方法
      */
-    public synchronized void DrawBack() {
+    public  void DrawBack() {
         try {
             //timer.cancel();
             paintflag = 0;
@@ -202,8 +217,9 @@ public class ECGSurfaceView extends SurfaceView implements
         IirFilter iirFilter=new IirFilter();
         public void run() {
             DrawBack();
-            //DrawBack();
-           // DrawBack();
+//            DrawBack();
+//            DrawBack();
+            Log.d("drawthread:",""+Thread.currentThread().getId()+"___"+Command.mShowDataQueue.isEmpty());
             //drawheartrate();
             //testdraw();
             while (paintflag == 1) {
@@ -217,18 +233,27 @@ public class ECGSurfaceView extends SurfaceView implements
                     Command.mAboutheartratedataListQueue.offer((short)data);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
-                    cx++;                               //cx 自增， 就类似于随时间轴的图形
+                    cx++;//cx 自增， 就类似于随时间轴的图形
+                    long start=System.currentTimeMillis();
+//                    Log.d("startime:",""+)
                     //最左上角是原点，所以我要到y值，需要从画布中间开始计数
-                    Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-                    //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+                    try {
+                        Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+                        //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
 //                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 //                canvas.drawPaint(linePaint);
 //                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-                    //canvas.drawColor(Color.TRANSPARENT);
-                    linePaint.setColor(Color.GREEN);//设置波形颜色
-                    canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-                    holder.unlockCanvasAndPost(canvas);  //解锁画布
-                    //Log.d("showtime:",""+System.currentTimeMillis());
+                        //canvas.drawColor(Color.TRANSPARENT);
+                        linePaint.setColor(Color.GREEN);//设置波形颜色
+                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+                        holder.unlockCanvasAndPost(canvas);  //解锁画布
+                    } catch (Exception e) {
+                        if (paintflag==0)break;
+                        e.printStackTrace();
+
+                    }
+                    long end=System.currentTimeMillis();
+                    //Log.d("showtime:",""+(end-start));
                     by = cy;
                     if (cx >= canvaswidth) {
                         cx = (int) fbx;
@@ -371,5 +396,10 @@ public class ECGSurfaceView extends SurfaceView implements
 
         }
 
+    }
+
+    @Override
+    public void SetImainview(IMainView iMainView) {
+        this.iMainView=iMainView;
     }
 }

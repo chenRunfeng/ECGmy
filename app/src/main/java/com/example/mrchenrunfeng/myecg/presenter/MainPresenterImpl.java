@@ -215,4 +215,14 @@ public class MainPresenterImpl implements IMainPresenter {
     public void ReadLocalECG(String filepath) {
         agreement.AReadLocalECG(filepath);
     }
+
+    @Override
+    public void StopHeartrate() {
+        agreement.AStopHeartRate();
+    }
+
+    @Override
+    public void Stopreadlocalecg() {
+        agreement.AStopLocalECG();
+    }
 }
