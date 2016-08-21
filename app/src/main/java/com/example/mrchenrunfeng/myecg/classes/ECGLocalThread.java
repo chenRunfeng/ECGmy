@@ -52,14 +52,17 @@ public class ECGLocalThread implements Runnable {
                 //System.out.println(Command.mShowDataQueue.isEmpty());
 //                if (!Command.mShowDataQueue.isEmpty()) {
                     Command.mShowDataQueue.clear();
+                //Log.d("local:",""+Thread.currentThread().getId()+"___"+Command.mShowDataQueue.isEmpty());
                     try {
                         while (!done){
-                            double data=dos.readDouble();
-                            Command.mShowDataQueue.offer((short)data);
-                            Log.v("localecg:",""+data);
+                            Double data=dos.readDouble();
+                            Command.mShowDataQueue1.offer(data);
+                            //Log.v("localecg:",""+data);
                         }
                     } catch (IOException e) {
+                        //Log.d("readthreaderr:",""+e.getMessage());
                         e.printStackTrace();
+                        return;
                     }
                     //while (true)
                 //}

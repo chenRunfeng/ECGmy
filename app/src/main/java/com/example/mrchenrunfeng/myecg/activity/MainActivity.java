@@ -167,7 +167,7 @@ public class MainActivity extends Activity implements IMainView,View.OnClickList
             else if (requestCode==SAVE_LIST){
                 String filename=data.getExtras().getString(SaveListActivity.FILEPATH);
                 mainPresenter.ReadLocalECG(filename);
-                iecgSurfaceView.StartDraw();
+                iecgSurfaceView.StartDrawL();
                 imbtnplay.setBackgroundResource(R.drawable.stop);
                 btnstatus=NOTSAMPLING;
                 //HeartRateThread heartRateThread=new HeartRateThread()

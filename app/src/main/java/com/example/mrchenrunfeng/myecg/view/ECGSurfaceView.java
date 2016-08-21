@@ -33,18 +33,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class ECGSurfaceView extends SurfaceView implements
         SurfaceHolder.Callback, IECGSurfaceView {
     DrawThread drawThread = null;
-    List<Double> mSaveData = new ArrayList<Double>();
+    private DrawThread1 drawThread1;
+    List<Double> mSaveData = new ArrayList<>();
     int lStartX;
     int centerY;
     int paintflag = 1;//绘图是否暂停标志位，0为暂停
     final int ECGTIMES = 2;
     final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
+    private  ExecutorService singleThreadExecutor;
     //int simpleHeight;//记录心率的纵坐标
     //控制对象
     private SurfaceHolder holder = null;
@@ -64,6 +69,7 @@ public class ECGSurfaceView extends SurfaceView implements
         super(context, attrs);
         holder = getHolder();
         holder.addCallback(this);
+        singleThreadExecutor= Executors.newSingleThreadExecutor();
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
@@ -85,17 +91,33 @@ public class ECGSurfaceView extends SurfaceView implements
     }
 
     public void StartDraw() {
-        holder = getHolder();
-        holder.addCallback(this);
+//        holder = getHolder();
+//        holder.addCallback(this);
         mSaveData.clear();
         drawThread = new DrawThread();
-        drawThread.start();
+//        drawThread.start();
+        singleThreadExecutor.execute(drawThread);
         paintflag = 1;
     }
 
     public void StopDraw() {
         resetvalues();
     }
+
+    @Override
+    public void StartDrawL() {
+        mSaveData.clear();
+        drawThread1 = new DrawThread1();
+//        drawThread.start();
+        singleThreadExecutor.execute(drawThread1);
+        paintflag = 1;
+    }
+
+    @Override
+    public void StopDrawL() {
+
+    }
+
     //重置相关变量
     private void resetvalues() {
         paintflag = 0;
@@ -104,6 +126,7 @@ public class ECGSurfaceView extends SurfaceView implements
         Command.mAboutheartratedataListQueue.clear();
         iMainView.StopHeartrate();
         iMainView.StopLocalECG();
+        Command.mShowDataQueue1.clear();
     }
 
 
@@ -119,7 +142,7 @@ public class ECGSurfaceView extends SurfaceView implements
             linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
             mCanvas.drawPaint(linePaint);
             linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-            mCanvas.drawColor(Color.TRANSPARENT);
+            mCanvas.drawColor(Color.BLACK);
             canvaswidth = mCanvas.getWidth();
             canvasheigth = mCanvas.getHeight();
             int height = canvasheigth;
@@ -216,6 +239,11 @@ public class ECGSurfaceView extends SurfaceView implements
         IFirFilter iFirFilter=new FirFilter();
         IirFilter iirFilter=new IirFilter();
         public void run() {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             DrawBack();
 //            DrawBack();
 //            DrawBack();
@@ -225,12 +253,14 @@ public class ECGSurfaceView extends SurfaceView implements
             while (paintflag == 1) {
                 if (Command.mShowDataQueue.isEmpty() == false) {
                     short ecg=Command.mShowDataQueue.poll();
-                    double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
+                   double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
                     //int data=finalecgdata(Command.mShowDataQueue.poll());
                     //double data=0;
+                    //Log.d("mshowdata:",Thread.currentThread().getId()+""+ecg);
                     float cy = centerY - (float) (data / ECGTIMES);
+                    //float cy = centerY - (float) (ecg / ECGTIMES);
                     mSaveData.add(data);
-                    Command.mAboutheartratedataListQueue.offer((short)data);
+                    Command.mAboutheartratedataListQueue.offer(ecg);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
                     cx++;//cx 自增， 就类似于随时间轴的图形
@@ -246,7 +276,10 @@ public class ECGSurfaceView extends SurfaceView implements
                         //canvas.drawColor(Color.TRANSPARENT);
                         linePaint.setColor(Color.GREEN);//设置波形颜色
                         canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-                        holder.unlockCanvasAndPost(canvas);  //解锁画布
+                       // canvas.drawPoint(cx,cy,linePaint);
+//                        if (canvas!=null) {
+                            holder.unlockCanvasAndPost(canvas);  //解锁画布
+//                        }
                     } catch (Exception e) {
                         if (paintflag==0)break;
                         e.printStackTrace();
@@ -318,6 +351,72 @@ public class ECGSurfaceView extends SurfaceView implements
             }
            // Log.v("ecg:",""+ecgdata);
             return ecgdata;
+        }
+    }
+    private class DrawThread1 extends Thread {
+        float fbx = lStartX + flmvwidth / 2;
+        int cx = (int) fbx;
+        int bx;
+        float by = centerY;
+        public void run() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            DrawBack();
+            while (paintflag == 1) {
+                if (Command.mShowDataQueue1.isEmpty() == false) {
+                    double ecg=Command.mShowDataQueue1.poll();
+                    //double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
+                    //int data=finalecgdata(Command.mShowDataQueue.poll());
+                    //double data=0;
+                    Log.d("mshowdata:",Thread.currentThread().getId()+""+ecg);
+                    float cy = centerY - (float) (ecg / ECGTIMES);
+                    //float cy = centerY - (float) (ecg / ECGTIMES);
+                    //mSaveData.add(ecg);
+                    Command.mAboutheartratedataListQueue.offer((short)ecg);
+                    //实时获取的temp数值，因为对于画布来说
+                    bx = cx;
+                    cx++;//cx 自增， 就类似于随时间轴的图形
+//                    Log.d("startime:",""+)
+                    //最左上角是原点，所以我要到y值，需要从画布中间开始计数
+                    try {
+                        Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+                        //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+//                canvas.drawPaint(linePaint);
+//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+                        //canvas.drawColor(Color.TRANSPARENT);
+                        linePaint.setColor(Color.GREEN);//设置波形颜色
+                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+                        // canvas.drawPoint(cx,cy,linePaint);
+//                        if (canvas!=null) {
+                        holder.unlockCanvasAndPost(canvas);  //解锁画布
+//                        }
+                    } catch (Exception e) {
+                        if (paintflag==0)break;
+                        e.printStackTrace();
+
+                    }
+                    //Log.d("showtime:",""+(end-start));
+                    by = cy;
+                    if (cx >= canvaswidth) {
+                        cx = (int) fbx;
+                        DrawBack();
+                        DrawBack();
+                        DrawBack();
+                        //画满之后，清除原来的图像，从新开始
+                    }
+                }
+            }
+            //while (!done) {
+            //final Object obj = new Object();//申请一个对象
+            // TODO Auto-generated method stub
+            //drawBack(holder);    //画出背景和坐标轴
+            //drawheartrate();
+            //简单一点就是1ms画出一个点，然后依次下去
+            //}
         }
     }
     /**

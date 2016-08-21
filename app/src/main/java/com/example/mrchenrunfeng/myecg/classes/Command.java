@@ -62,9 +62,10 @@ public class Command {
     public final static int SAMPLE_RATE = 250;
     //临时储存心电数据队列
     //数据暂存队列 阻塞队列
-    public static ConcurrentLinkedQueue<Short> mShowDataQueue=new ConcurrentLinkedQueue<Short>() ;
-    public static Queue<Short> mAboutheartratedataListQueue=new LinkedBlockingQueue<Short>();
-    public static Queue<Integer> mHeartRateQueue=new LinkedBlockingQueue<Integer>();
+    public volatile static ConcurrentLinkedQueue<Short> mShowDataQueue=new ConcurrentLinkedQueue<Short>() ;
+    public volatile static ConcurrentLinkedQueue<Double> mShowDataQueue1=new ConcurrentLinkedQueue<>() ;
+    public volatile static Queue<Short> mAboutheartratedataListQueue=new ConcurrentLinkedQueue<Short>();
+    public volatile  static Queue<Integer> mHeartRateQueue=new ConcurrentLinkedQueue<Integer>();
     public static final short ESCAPE_CHAR = 0xdb;
     public static final short SPECIAL_CHAR = 0xdd;
     public static final short SPECIAL_CHAR1 = 0xda;
