@@ -55,7 +55,7 @@ public class HeartRateThread implements Runnable {
                     heightdifference heightdifference1=arrayList.get(ecgtimes);
                     short data=heightdifference1.getDifference();
                     if (section>=5){R0=(short) (R0*0.8);}
-                    if (data >=0.9*R0) {
+                    if (data >=0.7*R0) {
                        // Log.v("r0:", "" + R0);
                         Rnumber++;
                         //long secondtime = ecgtimes;
