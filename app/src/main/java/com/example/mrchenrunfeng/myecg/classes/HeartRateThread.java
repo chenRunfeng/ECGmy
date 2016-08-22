@@ -28,7 +28,7 @@ public class HeartRateThread implements Runnable {
         isgetR0=true;
         R0=0;
         //ecgtimes=0;
-        Rnumber=0;
+        Rnumber=1;
         count=0;
         byte section=0;
         while (!done) {
@@ -113,7 +113,7 @@ public class HeartRateThread implements Runnable {
             ss[j] = arrayList.get(j).getDifference();
         }
         R0 = max(ss);
-        Log.v("R0:",""+R0);
+       // Log.v("R0:",""+R0);
 //        heightdifference heightdifference=getRmax(R0);
 //        int arrindex=arrayList.indexOf(heightdifference)-6;
 //        int index=Index(shorts,heightdifference.getMax());

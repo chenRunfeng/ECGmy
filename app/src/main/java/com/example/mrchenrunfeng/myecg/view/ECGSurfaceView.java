@@ -247,7 +247,7 @@ public class ECGSurfaceView extends SurfaceView implements
             DrawBack();
 //            DrawBack();
 //            DrawBack();
-            Log.d("drawthread:",""+Thread.currentThread().getId()+"___"+Command.mShowDataQueue.isEmpty());
+            //Log.d("drawthread:",""+Thread.currentThread().getId()+"___"+Command.mShowDataQueue.isEmpty());
             //drawheartrate();
             //testdraw();
             while (paintflag == 1) {
@@ -260,7 +260,7 @@ public class ECGSurfaceView extends SurfaceView implements
                     float cy = centerY - (float) (data / ECGTIMES);
                     //float cy = centerY - (float) (ecg / ECGTIMES);
                     mSaveData.add(data);
-                    Command.mAboutheartratedataListQueue.offer(ecg);
+                    Command.mAboutheartratedataListQueue.offer((short)data);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
                     cx++;//cx 自增， 就类似于随时间轴的图形
@@ -464,7 +464,7 @@ public class ECGSurfaceView extends SurfaceView implements
 //                            dos.writeInt(SAMPLE_RATE);
 //                            dos.writeBytes("\r\n");
 //                            mSaveData.remove();
-                            for (int i = 2*Command.SAMPLE_RATE; i < mSaveData.size(); i++) {
+                            for (int i = 0; i < mSaveData.size(); i++) {
                                 double Data = mSaveData.get(i);
                                 //short Data=1;
                                 dos.writeDouble(Data);
