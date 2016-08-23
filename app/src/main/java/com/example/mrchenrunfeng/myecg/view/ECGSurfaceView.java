@@ -49,8 +49,8 @@ public class ECGSurfaceView extends SurfaceView implements
     final int ECGTIMES = 2;
     final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
-    //long sum;
-    //long num;
+    long sum;
+    long num;
     private ExecutorService singleThreadExecutor;
     //int simpleHeight;//记录心率的纵坐标
     //控制对象
@@ -104,8 +104,8 @@ public class ECGSurfaceView extends SurfaceView implements
 
     public void StopDraw() {
         resetvalues();
-        //double e=sum/num;
-       // Log.d("avg:",""+e);
+        double e=sum/num;
+        Log.d("avg:",""+e);
     }
 
     @Override
@@ -244,7 +244,7 @@ public class ECGSurfaceView extends SurfaceView implements
         int cx = (int) fbx;
         int bx = cx;
         float by = centerY;
-        IFirFilter iFirFilter = new FirFilter();
+        //IFirFilter iFirFilter = new FirFilter();
         IirFilter iirFilter = new IirFilter();
 
         public void run() {
@@ -301,113 +301,24 @@ public class ECGSurfaceView extends SurfaceView implements
                         //实时获取的temp数值，因为对于画布来说
                        //Log.d("RectLine:", "L" + bx + "_" + by + "____" + cx + "_" + cy);
                         canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-                        //canvas.restore();
                         bx = cx;
                         cx++;//cx 自增， 就类似于随时间轴的图形
                         by = cy;
                         mSaveData.add(data);
                         Command.mAboutheartratedataListQueue.offer((short)data);
                         if (cx >= canvaswidth) {
-//                                cx = (int) fbx;
-//                                bx=cx;
-                            //isFirst = false;
                             break;
                             //从新开始
                         }
                         //ecglist.add(data);
                     }
-                    // }
-                    //ecglist.clear();
                     holder.unlockCanvasAndPost(canvas);  //解锁画布
-                    //}
-                    //long e = System.currentTimeMillis();
-                    //sum=sum+(e-s);
-                    //Log.d("draw:",""+(e-s)+"___"+ecgqueuesize);
                 } catch (Exception e) {
                     if (paintflag == 0) break;
                     e.printStackTrace();
                 }
-//                if (Command.mShowDataQueue.isEmpty() == false) {
-//                    //int data=finalecgdata(Command.mShowDataQueue.poll());
-//                    //double data=0;
-//                    //Log.d("mshowdata:",Thread.currentThread().getId()+""+ecg);
-//                    float cy = centerY - (float) (data / ECGTIMES);
-//                    //float cy = centerY - (float) (ecg / ECGTIMES);
-//                    //实时获取的temp数值，因为对于画布来说
-//                    bx = cx;
-//                    cx++;//cx 自增， 就类似于随时间轴的图形
-//                    long start=System.currentTimeMillis();
-////                    Log.d("startime:",""+)
-//                    //最左上角是原点，所以我要到y值，需要从画布中间开始计数
-//                    try {
-//                        Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-//                        //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-////                canvas.drawPaint(linePaint);
-////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-//                        //canvas.drawColor(Color.TRANSPARENT);
-//                        linePaint.setColor(Color.GREEN);//设置波形颜色
-//                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-//                       // canvas.drawPoint(cx,cy,linePaint);
-////                        if (canvas!=null) {
-//                            holder.unlockCanvasAndPost(canvas);  //解锁画布
-////                        }
-//                    } catch (Exception e) {
-//                        if (paintflag==0)break;
-//                        e.printStackTrace();
-//
-//                    }
-//                    long end=System.currentTimeMillis();
-//                    //Log.d("showtime:",""+(end-start));
-//                    by = cy;
-//                    if (cx >= canvaswidth) {
-//                        cx = (int) fbx;
-//                        DrawBack();
-//                        DrawBack();
-//                        DrawBack();
-//                        //画满之后，清除原来的图像，从新开始
-//                    }
-//                }
             }
-            //while (!done) {
-            //final Object obj = new Object();//申请一个对象
-            // TODO Auto-generated method stub
-            //drawBack(holder);    //画出背景和坐标轴
-            //drawheartrate();
-            //简单一点就是1ms画出一个点，然后依次下去
-            //}
         }
-
-//        private void updateECG() {
-//            if (Command.mShowDataQueue.isEmpty() == false) {
-//                int data =finalecgdata(Command.mShowDataQueue.poll()) ;
-//                float cy = centerY - (float)(data / ECGTIMES);
-//                mSaveData.add(data);
-//                //实时获取的temp数值，因为对于画布来说
-//                bx = cx;
-//                cx++;                               //cx 自增， 就类似于随时间轴的图形
-//                //最左上角是原点，所以我要到y值，需要从画布中间开始计数
-//                Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-//                //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-////                canvas.drawPaint(linePaint);
-////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-//                canvas.drawColor(Color.TRANSPARENT);
-//                linePaint.setColor(Color.GREEN);//设置波形颜色
-//                canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-//                holder.unlockCanvasAndPost(canvas);  //解锁画布
-//                by = cy;
-//                if (cx >= canvaswidth) {
-//                    cx = (int) fbx;
-//                    DrawBack();
-//                    DrawBack();
-//                    DrawBack();
-//                    //画满之后，清除原来的图像，从新开始
-//                }
-//            }
-//            //paintflag=0;
-//        }
-
         private int finalecgdata(int arg) {
             int ecgdata = arg;
             // Log.v("argecg:",""+arg);
@@ -429,7 +340,7 @@ public class ECGSurfaceView extends SurfaceView implements
     private class DrawThread1 extends Thread {
         float fbx = lStartX + flmvwidth / 2;
         int cx = (int) fbx;
-        int bx;
+        int bx = cx;
         float by = centerY;
 
         public void run() {
@@ -438,59 +349,68 @@ public class ECGSurfaceView extends SurfaceView implements
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            cx++;
             DrawBack();
             while (paintflag == 1) {
-                if (Command.mShowDataQueue1.isEmpty() == false) {
-                    double ecg = Command.mShowDataQueue1.poll();
-                    //double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
-                    //int data=finalecgdata(Command.mShowDataQueue.poll());
-                    //double data=0;
-                    Log.d("mshowdata:", Thread.currentThread().getId() + "" + ecg);
-                    float cy = centerY - (float) (ecg / ECGTIMES);
-                    //float cy = centerY - (float) (ecg / ECGTIMES);
-                    //mSaveData.add(ecg);
-                    Command.mAboutheartratedataListQueue.offer((short) ecg);
-                    //实时获取的temp数值，因为对于画布来说
-                    bx = cx;
-                    cx++;//cx 自增， 就类似于随时间轴的图形
-//                    Log.d("startime:",""+)
-                    //最左上角是原点，所以我要到y值，需要从画布中间开始计数
-                    try {
-                        Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-                        //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-//                canvas.drawPaint(linePaint);
-//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-                        //canvas.drawColor(Color.TRANSPARENT);
-                        linePaint.setColor(Color.GREEN);//设置波形颜色
-                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-                        // canvas.drawPoint(cx,cy,linePaint);
-//                        if (canvas!=null) {
-                        holder.unlockCanvasAndPost(canvas);  //解锁画布
-//                        }
-                    } catch (Exception e) {
-                        if (paintflag == 0) break;
-                        e.printStackTrace();
-
-                    }
-                    //Log.d("showtime:",""+(end-start));
-                    by = cy;
+                //List<Double> ecglist=new ArrayList<>();
+                try {
                     if (cx >= canvaswidth) {
                         cx = (int) fbx;
+                        bx = cx;
+                        cx++;
                         DrawBack();
                         DrawBack();
                         DrawBack();
-                        //画满之后，清除原来的图像，从新开始
+                        //Log.d("RectLine:","cw");
                     }
+//                    if (isFirst == false) {
+//                        //Thread.sleep(4);
+//
+////                        DrawBack();
+////                        DrawBack();
+//                    }
+                    linePaint.setColor(Color.GREEN);//设置波形颜色
+                    linePaint.setStrokeWidth(2);
+                    //long s = System.currentTimeMillis();
+                    int ecgqueuesize = 5;
+                    //synchronized (holder) {
+                    int Rcx = cx + ecgqueuesize;
+                    Canvas canvas = holder.lockCanvas(new Rect(bx, 0, Rcx, canvasheigth));
+                    //canvas.drawColor(Color.BLACK);
+                    // Log.d("RectLine:", "R" + bx + "_" + 0 + "_" + Rcx + "_" + canvasheigth);
+                    //for (int i=0;i<ecgqueuesize;i++){
+                    //double data1=ecglist.get(i);
+                    for (int i = 0; i < ecgqueuesize; i++) {
+                        //short ecg = Command.mShowDataQueue.poll();
+                         //num++;
+                        Thread.sleep(3);
+                        double data =Command.mShowDataQueue1.poll();
+                        float cy = centerY - (float) (data / ECGTIMES);
+                        //float cy = centerY - (float) (ecg / ECGTIMES);;
+                        //canvas.save();
+                        //float cy = centerY - (float) (ecg / ECGTIMES);
+                        //实时获取的temp数值，因为对于画布来说
+                        //Log.d("RectLine:", "L" + bx + "_" + by + "____" + cx + "_" + cy);
+                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+                        bx = cx;
+                        cx++;//cx 自增， 就类似于随时间轴的图形
+                        by = cy;
+                        //mSaveData.add(data);
+                        Command.mAboutheartratedataListQueue.offer((short)data);
+                        if (cx >= canvaswidth) {
+                            break;
+                            //从新开始
+                        }
+                        //ecglist.add(data);
+                    }
+                    holder.unlockCanvasAndPost(canvas);  //解锁画布
+//                    long e=System.currentTimeMillis();
+//                    sum=sum+(e-s);
+                } catch (Exception e) {
+                    if (paintflag == 0) break;
+                    e.printStackTrace();
                 }
             }
-            //while (!done) {
-            //final Object obj = new Object();//申请一个对象
-            // TODO Auto-generated method stub
-            //drawBack(holder);    //画出背景和坐标轴
-            //drawheartrate();
-            //简单一点就是1ms画出一个点，然后依次下去
-            //}
         }
     }
 
