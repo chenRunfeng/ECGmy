@@ -49,7 +49,9 @@ public class ECGSurfaceView extends SurfaceView implements
     final int ECGTIMES = 2;
     final int ECG_1MV_DATA = 324;//1mv心电数据参考值
     float flmvwidth;
-    private  ExecutorService singleThreadExecutor;
+    //long sum;
+    //long num;
+    private ExecutorService singleThreadExecutor;
     //int simpleHeight;//记录心率的纵坐标
     //控制对象
     private SurfaceHolder holder = null;
@@ -69,7 +71,7 @@ public class ECGSurfaceView extends SurfaceView implements
         super(context, attrs);
         holder = getHolder();
         holder.addCallback(this);
-        singleThreadExecutor= Executors.newSingleThreadExecutor();
+        singleThreadExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
@@ -86,7 +88,7 @@ public class ECGSurfaceView extends SurfaceView implements
 
     public void surfaceDestroyed(SurfaceHolder holder) {
         System.out.println("surfaceDestroyed!!");
-      resetvalues();
+        resetvalues();
         //cachedThreadpool.shutdown();
     }
 
@@ -102,6 +104,8 @@ public class ECGSurfaceView extends SurfaceView implements
 
     public void StopDraw() {
         resetvalues();
+        //double e=sum/num;
+       // Log.d("avg:",""+e);
     }
 
     @Override
@@ -133,10 +137,12 @@ public class ECGSurfaceView extends SurfaceView implements
     /**
      * 画图的方法
      */
-    public  void DrawBack() {
+    public void DrawBack() {
         try {
             //timer.cancel();
-            paintflag = 0;
+            //paintflag = 0;
+
+//            synchronized (holder) {
             mCanvas = holder.lockCanvas();
 //            Paint paint=new Paint();
             linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
@@ -192,6 +198,7 @@ public class ECGSurfaceView extends SurfaceView implements
             mCanvas.drawText("1mV", lStartX - flmvwidth * (float) 1.8, centerY - f1mv / 2, linePaint);
             linePaint.setStrokeWidth(flmvwidth);
             mCanvas.drawLine(lStartX, centerY + f1mv / 2, lStartX, centerY - f1mv / 2, linePaint);//画出参考线
+            // }
 //				}
 //
 //				linePaint.setStrokeWidth(1);
@@ -210,7 +217,7 @@ public class ECGSurfaceView extends SurfaceView implements
 ////			canvas.drawLine(temp, 0, temp, height, linePaint);
 //				temp+=15;
 //			}
-             //simpleHeight= height / 6;
+            //simpleHeight= height / 6;
             //心率
 //            linePaint.setTextSize(width * 3 / 100);
 //            linePaint.setColor(Color.CYAN);
@@ -231,71 +238,136 @@ public class ECGSurfaceView extends SurfaceView implements
             //timer.
         }
     }
+
     private class DrawThread extends Thread {
         float fbx = lStartX + flmvwidth / 2;
         int cx = (int) fbx;
-        int bx;
+        int bx = cx;
         float by = centerY;
-        IFirFilter iFirFilter=new FirFilter();
-        IirFilter iirFilter=new IirFilter();
+        IFirFilter iFirFilter = new FirFilter();
+        IirFilter iirFilter = new IirFilter();
+
         public void run() {
+            cx++;
 //            try {
 //                Thread.sleep(1000);
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
             DrawBack();
+            //boolean isFirst = true;
 //            DrawBack();
 //            DrawBack();
             //Log.d("drawthread:",""+Thread.currentThread().getId()+"___"+Command.mShowDataQueue.isEmpty());
             //drawheartrate();
-            //testdraw();
+            //testdraw();          boolean isFirst=true;
             while (paintflag == 1) {
-                if (Command.mShowDataQueue.isEmpty() == false) {
-                    short ecg=Command.mShowDataQueue.poll();
-                   double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
-                    //int data=finalecgdata(Command.mShowDataQueue.poll());
-                    //double data=0;
-                    //Log.d("mshowdata:",Thread.currentThread().getId()+""+ecg);
-                    float cy = centerY - (float) (data / ECGTIMES);
-                    //float cy = centerY - (float) (ecg / ECGTIMES);
-                    mSaveData.add(data);
-                    Command.mAboutheartratedataListQueue.offer((short)data);
-                    //实时获取的temp数值，因为对于画布来说
-                    bx = cx;
-                    cx++;//cx 自增， 就类似于随时间轴的图形
-                    long start=System.currentTimeMillis();
-//                    Log.d("startime:",""+)
-                    //最左上角是原点，所以我要到y值，需要从画布中间开始计数
-                    try {
-                        Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
-                        //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
-//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-//                canvas.drawPaint(linePaint);
-//                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-                        //canvas.drawColor(Color.TRANSPARENT);
-                        linePaint.setColor(Color.GREEN);//设置波形颜色
-                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
-                       // canvas.drawPoint(cx,cy,linePaint);
-//                        if (canvas!=null) {
-                            holder.unlockCanvasAndPost(canvas);  //解锁画布
-//                        }
-                    } catch (Exception e) {
-                        if (paintflag==0)break;
-                        e.printStackTrace();
-
-                    }
-                    long end=System.currentTimeMillis();
-                    //Log.d("showtime:",""+(end-start));
-                    by = cy;
+                //List<Double> ecglist=new ArrayList<>();
+                try {
                     if (cx >= canvaswidth) {
                         cx = (int) fbx;
+                        bx = cx;
+                        cx++;
                         DrawBack();
                         DrawBack();
                         DrawBack();
-                        //画满之后，清除原来的图像，从新开始
+                        //Log.d("RectLine:","cw");
                     }
+//                    if (isFirst == false) {
+//                        //Thread.sleep(4);
+//
+////                        DrawBack();
+////                        DrawBack();
+//                    }
+                    linePaint.setColor(Color.GREEN);//设置波形颜色
+                    linePaint.setStrokeWidth(2);
+                    long s = System.currentTimeMillis();
+                    int ecgqueuesize = Command.mShowDataQueue.size();
+                    //synchronized (holder) {
+                    int Rcx = cx + ecgqueuesize;
+                    Canvas canvas = holder.lockCanvas(new Rect(bx, 0, Rcx, canvasheigth));
+                    //canvas.drawColor(Color.BLACK);
+                   // Log.d("RectLine:", "R" + bx + "_" + 0 + "_" + Rcx + "_" + canvasheigth);
+                    //for (int i=0;i<ecgqueuesize;i++){
+                    //double data1=ecglist.get(i);
+                    for (int i = 0; i < ecgqueuesize; i++) {
+                        short ecg = Command.mShowDataQueue.poll();
+                       // num++;
+                       double data =iirFilter.IIRDF2_Filter(finalecgdata(ecg));
+                        float cy = centerY - (float) (data / ECGTIMES);
+                        //float cy = centerY - (float) (ecg / ECGTIMES);;
+                        //canvas.save();
+                        //float cy = centerY - (float) (ecg / ECGTIMES);
+                        //实时获取的temp数值，因为对于画布来说
+                       //Log.d("RectLine:", "L" + bx + "_" + by + "____" + cx + "_" + cy);
+                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+                        //canvas.restore();
+                        bx = cx;
+                        cx++;//cx 自增， 就类似于随时间轴的图形
+                        by = cy;
+                        mSaveData.add(data);
+                        Command.mAboutheartratedataListQueue.offer((short)data);
+                        if (cx >= canvaswidth) {
+//                                cx = (int) fbx;
+//                                bx=cx;
+                            //isFirst = false;
+                            break;
+                            //从新开始
+                        }
+                        //ecglist.add(data);
+                    }
+                    // }
+                    //ecglist.clear();
+                    holder.unlockCanvasAndPost(canvas);  //解锁画布
+                    //}
+                    //long e = System.currentTimeMillis();
+                    //sum=sum+(e-s);
+                    //Log.d("draw:",""+(e-s)+"___"+ecgqueuesize);
+                } catch (Exception e) {
+                    if (paintflag == 0) break;
+                    e.printStackTrace();
                 }
+//                if (Command.mShowDataQueue.isEmpty() == false) {
+//                    //int data=finalecgdata(Command.mShowDataQueue.poll());
+//                    //double data=0;
+//                    //Log.d("mshowdata:",Thread.currentThread().getId()+""+ecg);
+//                    float cy = centerY - (float) (data / ECGTIMES);
+//                    //float cy = centerY - (float) (ecg / ECGTIMES);
+//                    //实时获取的temp数值，因为对于画布来说
+//                    bx = cx;
+//                    cx++;//cx 自增， 就类似于随时间轴的图形
+//                    long start=System.currentTimeMillis();
+////                    Log.d("startime:",""+)
+//                    //最左上角是原点，所以我要到y值，需要从画布中间开始计数
+//                    try {
+//                        Canvas canvas = holder.lockCanvas(new Rect(bx, 0, cx, canvasheigth));
+//                        //锁定画布，只对其中Rect(cx,cy-2,cx+2,cy+2)这块区域做改变，减小工程量
+////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+////                canvas.drawPaint(linePaint);
+////                linePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+//                        //canvas.drawColor(Color.TRANSPARENT);
+//                        linePaint.setColor(Color.GREEN);//设置波形颜色
+//                        canvas.drawLine(bx, by, cx, cy, linePaint); //画线
+//                       // canvas.drawPoint(cx,cy,linePaint);
+////                        if (canvas!=null) {
+//                            holder.unlockCanvasAndPost(canvas);  //解锁画布
+////                        }
+//                    } catch (Exception e) {
+//                        if (paintflag==0)break;
+//                        e.printStackTrace();
+//
+//                    }
+//                    long end=System.currentTimeMillis();
+//                    //Log.d("showtime:",""+(end-start));
+//                    by = cy;
+//                    if (cx >= canvaswidth) {
+//                        cx = (int) fbx;
+//                        DrawBack();
+//                        DrawBack();
+//                        DrawBack();
+//                        //画满之后，清除原来的图像，从新开始
+//                    }
+//                }
             }
             //while (!done) {
             //final Object obj = new Object();//申请一个对象
@@ -338,7 +410,7 @@ public class ECGSurfaceView extends SurfaceView implements
 
         private int finalecgdata(int arg) {
             int ecgdata = arg;
-           // Log.v("argecg:",""+arg);
+            // Log.v("argecg:",""+arg);
             if (arg == Command.ESCAPE_CHAR) {
                 if (Command.mShowDataQueue.isEmpty() == false) {
                     int next = Command.mShowDataQueue.poll();
@@ -349,15 +421,17 @@ public class ECGSurfaceView extends SurfaceView implements
                     }
                 }
             }
-           // Log.v("ecg:",""+ecgdata);
+            // Log.v("ecg:",""+ecgdata);
             return ecgdata;
         }
     }
+
     private class DrawThread1 extends Thread {
         float fbx = lStartX + flmvwidth / 2;
         int cx = (int) fbx;
         int bx;
         float by = centerY;
+
         public void run() {
             try {
                 Thread.sleep(1000);
@@ -367,15 +441,15 @@ public class ECGSurfaceView extends SurfaceView implements
             DrawBack();
             while (paintflag == 1) {
                 if (Command.mShowDataQueue1.isEmpty() == false) {
-                    double ecg=Command.mShowDataQueue1.poll();
+                    double ecg = Command.mShowDataQueue1.poll();
                     //double data = iFirFilter.FIRLPF_Filter(iirFilter.IIRDF2_Filter(finalecgdata(ecg)));
                     //int data=finalecgdata(Command.mShowDataQueue.poll());
                     //double data=0;
-                    Log.d("mshowdata:",Thread.currentThread().getId()+""+ecg);
+                    Log.d("mshowdata:", Thread.currentThread().getId() + "" + ecg);
                     float cy = centerY - (float) (ecg / ECGTIMES);
                     //float cy = centerY - (float) (ecg / ECGTIMES);
                     //mSaveData.add(ecg);
-                    Command.mAboutheartratedataListQueue.offer((short)ecg);
+                    Command.mAboutheartratedataListQueue.offer((short) ecg);
                     //实时获取的temp数值，因为对于画布来说
                     bx = cx;
                     cx++;//cx 自增， 就类似于随时间轴的图形
@@ -395,7 +469,7 @@ public class ECGSurfaceView extends SurfaceView implements
                         holder.unlockCanvasAndPost(canvas);  //解锁画布
 //                        }
                     } catch (Exception e) {
-                        if (paintflag==0)break;
+                        if (paintflag == 0) break;
                         e.printStackTrace();
 
                     }
@@ -419,6 +493,7 @@ public class ECGSurfaceView extends SurfaceView implements
             //}
         }
     }
+
     /**
      * 保存成二进制文件
      */
@@ -433,7 +508,7 @@ public class ECGSurfaceView extends SurfaceView implements
                 // 创建一个文件夹对象，赋值为外部存储器的目录
                 File sdcardDir = Environment.getExternalStorageDirectory();
                 //得到一个路径，内容是sdcard的文件夹路径和名字
-                String path = sdcardDir.getPath()+"//ECGDATA//";
+                String path = sdcardDir.getPath() + "//ECGDATA//";
                 File path1 = new File(path);
                 if (!path1.exists()) {
                     //若不存在，创建目录，可以在应用启动的时候创建
@@ -454,7 +529,7 @@ public class ECGSurfaceView extends SurfaceView implements
                 }
                 DataOutputStream dos = new DataOutputStream(bos);
 
-               // System.out.println(Command.mShowDataQueue.isEmpty());
+                // System.out.println(Command.mShowDataQueue.isEmpty());
 
                 if (!mSaveData.isEmpty()) {
                     try {
@@ -482,6 +557,7 @@ public class ECGSurfaceView extends SurfaceView implements
 //									Application., path + "/"+fileName, Toast.LENGTH_LONG).show();
                             Log.v("保存 成功！", "" + path + "/" + fileName);
                             Toast.makeText(getContext(), "已经保存到：" + "" + path + "/" + fileName, Toast.LENGTH_LONG).show();
+                            mSaveData.clear();
                         } catch (IOException e) {
                             // TODO 自动生成的 catch 块
                             e.printStackTrace();
@@ -499,6 +575,6 @@ public class ECGSurfaceView extends SurfaceView implements
 
     @Override
     public void SetImainview(IMainView iMainView) {
-        this.iMainView=iMainView;
+        this.iMainView = iMainView;
     }
 }

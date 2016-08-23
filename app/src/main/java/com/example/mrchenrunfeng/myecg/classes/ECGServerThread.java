@@ -139,7 +139,7 @@ public class ECGServerThread extends Thread implements ECGServer {
 //                    if(bufferedInputStream.available()>0 == false){
 //                        continue;
 //                    }else{
-                        Thread.sleep(4);
+                        Thread.sleep(2);
                    // }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
